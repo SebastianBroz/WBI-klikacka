@@ -31,9 +31,10 @@ const emit = defineEmits<{ close: [] }>();
 .shadow
 {
   width: 100vw; height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  z-index: 1001;
   background-color: rgba(0, 0, 0, 0.8);
 }
 .endingPopup {
@@ -50,6 +51,7 @@ const emit = defineEmits<{ close: [] }>();
   align-items: center;
   padding: 3rem;
   box-sizing: border-box;
+  z-index: 1001;
 }
 .endingPopup p:first-child {
   color: #f7f9f9;
