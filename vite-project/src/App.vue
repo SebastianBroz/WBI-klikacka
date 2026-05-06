@@ -1,107 +1,106 @@
-<!--Vyuzito ChatGPT pro obrazky, inspiraci a vice:
+<!--Vyuzito ChatGPT pro obrazky, inspiraci a vice a Claude:
 https://chatgpt.com/share/69998f74-342c-8002-94fd-e8ed5e74cbb0
 https://chatgpt.com/share/69998fa0-ba34-8002-a4b1-b2f852251980
 https://chatgpt.com/share/69998fad-e954-8002-b2b8-4c591f545872
+https://claude.ai/share/fd8cab84-7071-4043-ae01-7f617112934a
 -->
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import ChoosePlant from './components/ChoosePlant.vue';
 import Field from './components/Field.vue';
 import Offer from './components/Offer.vue';
 import Perk from './components/Perk.vue';
 import Achievement from './components/Achievement.vue'
 import Ending from './components/Ending.vue';
+import { useCounterStore } from "./stores/counter.ts"
+import Audio from "./components/Audio.vue"
+import { selectedPlant, isChoosingPlant } from './composables/usePlant'
+
+const store = useCounterStore();
+
+const currentSection = ref('shopOffers');
+
+const changeSection = (section: string) => {
+  currentSection.value = section;
+};
 </script>
 
 <template>
-  <!--<HelloWorld msg="Vite + Vue" />-->
-    <div class="container">
-      <main>
-        <!--<ChoosePlant />-->
-        <!--<Ending />-->
-            <section class="countAndField">
-              <div class="currencyCount">
-                <img src="../public/tree_grown.png">
-                <p>--var</p>
+  <div class="container">
+    <main>
+      <ChoosePlant v-if="isChoosingPlant"/>
+      <Ending v-if="store.count === 1000000000"/>
+          <section class="stats">
+            <div class="buffOrNerf">
+              <div class="temporary">
+                <img src="/pics/perk_rainstorm.png" style="pointer-events: none;">
+                <p>Rainstorm</p>
               </div>
-              <div class="timePerClick">
-                <img src="../public/clock_tpc.png">
-                <p>Time per click: --var</p>
+              <p class="countdown">4:58</p>
+            </div>
+            <div class="treesPerClick">
+              <img src="/pics/clock_tpc.png" style="pointer-events: none;">
+              <p>Trees per click: --var</p>
+            </div>
+            <div class="currencyCount">
+              <img src="/pics/tree_grown.png" v-if="selectedPlant === 'trees'" style="pointer-events: none;">
+              <img src="/pics/mushroom_grown.png" v-if="selectedPlant === 'mushrooms'" style="pointer-events: none;">
+              <img src="/pics/potato_grown.png" v-if="selectedPlant === 'potatoes'" style="pointer-events: none;">
+              <p>{{store.count}}</p>
+            </div>
+            <div v-if="selectedPlant === 'trees'" class="fields" style="background-image: url(/pics/grass_floor.png);">
+              <Field v-for="n in 30" :key="n" />
+            </div>
+            <div v-if="selectedPlant === 'mushrooms'" class="fields" style="background-image: url(/pics/forest_floor.png);">
+              <Field v-for="n in 30" :key="n" />
+            </div>
+            <div v-if="selectedPlant === 'potatoes'" class="fields" style="background-image: url(/pics/soil_floor.png);">
+              <Field v-for="n in 30" :key="n" />
+            </div>
+          <Audio />
+          </section>
+          <section class="optionsAndLogo">
+            <section class="options">
+              <div class="optionsMenu">
+                <button @click="changeSection('shopOffers')">SHOP</button>
+                <button @click="changeSection('perksList')">PERKS</button>
+                <button @click="changeSection('achievements')">ACHIEVEMENTS</button>
               </div>
-              <div class="fields">
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-                <Field />
-              </div>
+              <!-- Conditional rendering based on currentSection -->
+              <ul v-if="currentSection === 'shopOffers'" class="shopOffers">
+                <Offer  
+                  v-for="n in 5" 
+                  :key="n" 
+                  title="title" 
+                  description="desc" 
+                  img="/pics/achievement_forest_ending.png" />
+              </ul>
+              <ul v-if="currentSection === 'perksList'" class="perksList">
+                <Perk 
+                  v-for="n in 5" 
+                  :key="n" 
+                  title="title" 
+                  description="desc" 
+                  img="/pics/perk_rainstorm.png"  />
+              </ul>
+              <ul v-if="currentSection === 'achievements'" class="achievementsList">
+                <Achievement 
+                  v-for="n in 5" 
+                  :key="n" 
+                  title="title" 
+                  description="desc" 
+                  img="/pics/achievement_forest_ending.png" 
+                />
+              </ul>
             </section>
-            <section class="optionsAndLogo">
-              <section class="options">
-                      <div class="optionsMenu">
-                          <button>SHOP</button>
-                          <button>PERKS</button>
-                          <button>ACHIEVEMENTS</button>
-                      </div>
-                      <!--<ul class="shopOffers">
-                        <Offer />
-                        <Offer />
-                        <Offer />
-                        <Offer />
-                        <Offer />
-                      </ul>-->
-                      <!--<ul class="perksList">
-                        <Perk />
-                        <Perk />
-                        <Perk />
-                        <Perk />
-                        <Perk />
-                      </ul>-->
-                      <ul class="achievementsList">
-                        <Achievement />
-                        <Achievement />
-                        <Achievement />
-                        <Achievement />
-                        <Achievement />
-                      </ul>
-                    </section>
-                    <img src="../public/logo_pixel.png" alt="logo" />
-            </section>
-          </main>
-    </div>
+            <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
+          </section>
+        </main>
+  </div>
 </template>
 
-<style scoped>
+<style>
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -130,10 +129,20 @@ h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
 }
 /*---------------------------*/
+p, img, button {
+  user-select: none;
+}
+template{
+  height: 100%;
+}
 .container {
-  width: 100%;
+  font-family: "Jersey 10", sans-serif;
+  letter-spacing: 10%;
+  max-width: 100%;
   height: 100vh;
-  background-color: rgba(224, 208, 193, 0.458);
+  background-color: #e0d0c1;
+  background-image: url(/pics/sky_bg.png);
+  background-size: cover;
   padding-block: 0.75rem;
 }
 img {
@@ -144,11 +153,33 @@ main {
   gap: 4rem;
   padding-inline: 3rem;
 }
-.countAndField {
+.stats {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   width: 100%;
+}
+.buffOrNerf{
+  background-image: url(/pics/golden_bg.png);
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem;
+}
+.temporary
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.buffOrNerf .countdown{
+  font-weight: 900;
+  font-size: 2rem;
 }
 .currencyCount {
   display: flex;
@@ -162,11 +193,13 @@ main {
   border-radius: 2rem;
   /*background-image: url('../public/grass.png');
   background-size: cover;*/
+  max-width: 50rem;
+  width: 100%;
 }
 .currencyCount img {
   height: 2rem;
 }
-.timePerClick {
+.treesPerClick {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -176,8 +209,10 @@ main {
   background-color: #00a676;
   color: #f7f9f9;
   border-radius: 2rem;
+  max-width: 50rem;
+  width: 100%;
 }
-.timePerClick img {
+.treesPerClick img {
   height: 2rem;
 }
 .fields {
@@ -185,26 +220,20 @@ main {
   /* each column is at least 5rem but will expand to fill available space evenly */
   grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
   gap: 0.5rem;
-  background-image: url('../public/grass_2.png');
   background-size: cover;
   border-radius: 1rem;
   padding: 1rem;
   width: 100%;
-}
-.timeBar
-{
-  width: 80%;
-  height: 0.5rem;
-  border: 2px solid #e0d0c1;
-  background-color: #f7f9f9;
-  border-radius: 0.25rem;
+  max-width: 50rem;
 }
 .options {
   display: flex;
   flex-direction: column;
-  max-width: 50rem;
+  width: 100%;
+  max-width: 30rem;
 }
 .optionsAndLogo {
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -228,12 +257,6 @@ main {
 {
   background-color: #c48071;
 }
-.shopOffers
-{
-  border: 5px solid #601700;
-  overflow: auto;
-  max-height: 34rem;
-}
 .optionsMenu {
   width: 100%;
   display: flex;
@@ -244,16 +267,26 @@ main {
   height: 3rem;
   padding: 0.5rem;
   font-size: 1.2em;
-  background-color: #601700;
+  /*background-color: #601700;*/
+  background: none;
+  background-image: url(/pics/wooden_board.png);
+  background-size: cover;
   color: #f7f9f9;
   border: none;
+  cursor: pointer;
 }
 .optionsMenu button:hover {
-  background-color: #942301;
+  /*background-color: #942301;*/
 }
 /*.optionsMenu button:active {
   background-color: #942301;
 }*/
+.shopOffers
+{
+  border: 5px solid #601700;
+  overflow: auto;
+  max-height: 34rem;
+}
 .perksList
 {
     border: 5px solid #601700;
@@ -273,10 +306,20 @@ footer {
   padding: 1rem;
 }
 @media (min-width: 320px) and (max-width: 768px) {
+  .container{
+    background-image: none;
+    height: 100%;
+  }
   main {
     flex-direction: column;
     padding-inline: 1rem;
     gap: 1rem;
+  }
+  .buffOrNerf{
+
+  }
+  .buffOrNerf img{
+    height: 3rem;
   }
   .currencyCount, .timePerClick {
     font-size: 0.75em;
@@ -311,6 +354,10 @@ footer {
   }
 }
 @media (min-width: 769px) and (max-width: 1500px) {
+  .container{
+    background-image: none;
+    height: 100%;
+  }
   body
   {
     background-image: none;

@@ -1,20 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 
-const count = ref(0)
+const props = defineProps<{
+  title: string,
+  description: string,
+  img: string
+
+}>();
 </script>
 
 <template>
   <li class="perk">
-    <img src="/perk_rainstorm.png">
+    <img :src=props.img>
     <div class="perkDesc">
-      <p>Perk</p>
-      <p>description description description description description description description description description description description </p>
+      <p>{{title}}</p>
+      <p>{{description }}</p>
     </div>
   </li>
 </template>
 
 <style scoped>
+img{
+  pointer-events: none;
+}
 .perk {
   display: flex;
   flex-direction: column;
@@ -22,7 +29,7 @@ const count = ref(0)
   align-items: center;
   padding: 1rem;
   color: #f7f9f9;
-  background-image: url('../public/wooden_planks.png');
+  background-image: url('/pics/wooden_planks.png');
   background-size: cover;
 }
 .perk img {
@@ -38,7 +45,11 @@ const count = ref(0)
   background-color: #a76d607b;
 }
 .perk p:first-child {
-  font-size: 1.2em;
+  font-size: 2rem;
+  font-weight: bold;
+}
+.perk p:nth-child(2) {
+  font-size: 1.2rem;
   font-weight: bold;
 }
 </style>

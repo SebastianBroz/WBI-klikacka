@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { selectedPlant, isChoosingPlant } from '../composables/usePlant'
 
-const count = ref(0)
+const selectPlant = (plant: string) => {
+  selectedPlant.value = plant
+  isChoosingPlant.value = false
+}
 </script>
 
 <template>
@@ -10,10 +13,9 @@ const count = ref(0)
       <p>Choose your plant!</p>
       <p>Each plant tells a different story, so choose wisely!</p>
       <div class="plantOptions">
-        <img src="/tree_grown.png">
-        <img src="/mushroom_brown.png">
-        <img src="/potato.png">
-        <!--<img src="/alive_plants.png">-->
+        <img src="/pics/tree_grown.png" @click="selectPlant('trees')">
+        <img src="/pics/mushroom_grown.png" @click="selectPlant('mushrooms')">
+        <img src="/pics/potato_grown.png" @click="selectPlant('potatoes')">
       </div>
     </div>
   </div>
@@ -33,7 +35,7 @@ const count = ref(0)
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-image: url('../public/wooden_planks.png');
+  background-image: url('/pics/wooden_planks.png');
   background-size: cover;
   padding: 20px;
   border-radius: 10px;
