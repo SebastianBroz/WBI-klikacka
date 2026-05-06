@@ -4,13 +4,14 @@ Nuti to uzivatele byt aktivni, pokud chce maximalni rust ve hre-->
 <script setup lang="ts">
 import { selectedPlant } from '../composables/usePlant'
 /*WORK IN PROGRESS KOMPONENTA*/
-const props = defineProps<{ x: number; y: number }>();
+const props = defineProps<{ x: number; y: number; flashing: boolean }>();
 const emit = defineEmits<{ collect: [] }>()
 </script>
 
 <template>
   <div
     class="collectible"
+    :class="{ flashing: props.flashing }"
     @click.stop="emit('collect')"
     :style="{ top: props.y + '%', left: props.x + '%' }"
   >
@@ -35,8 +36,11 @@ div {
 img{
   height: 4rem;
 }
-@keyframes bounce {
-  from { transform: translate(-50%, -100%); }
-  to   { transform: translate(-50%, calc(-100% - 8px)); }
+.flashing {
+  animation: flash 0.4s ease-in-out infinite alternate;
+}
+@keyframes flash {
+  from { opacity: 1; }
+  to   { opacity: 0.1; }
 }
 </style>
