@@ -4,27 +4,26 @@ Nuti to uzivatele byt aktivni, pokud chce maximalni rust ve hre-->
 <script setup lang="ts">
 import { selectedPlant } from '../composables/usePlant'
 /*WORK IN PROGRESS KOMPONENTA*/
+const props = defineProps<{ x: number; y: number }>();
 const emit = defineEmits<{ collect: [] }>()
-
 </script>
 
 <template>
-  <div class="collectible" @click.stop="emit('collect')" v-if="selectedPlant === 'trees'">
-    <img src="/pics/tree_grown.png" style="pointer-events: none;">
-  </div>
-  <div class="collectible" @click.stop="emit('collect')" v-if="selectedPlant === 'mushrooms'">
-    <img src="/pics/mushroom_grown.png" style="pointer-events: none;">
-  </div>
-  <div class="collectible" @click.stop="emit('collect')" v-if="selectedPlant === 'potatoes'">
-    <img src="/pics/potato_grown.png" style="pointer-events: none;">
+  <div
+    class="collectible"
+    @click.stop="emit('collect')"
+    :style="{ top: props.y + '%', left: props.x + '%' }"
+  >
+    <img v-if="selectedPlant === 'trees'"     src="/pics/tree_grown.png"     style="pointer-events: none;">
+    <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'potatoes'"  src="/pics/potato_grown.png"   style="pointer-events: none;">
   </div>
 </template>
 
 <style scoped>
 div {
   position: absolute;
-  right: 50%;
-  top: 50%;
+  transform: translate(-50%, -50%);
   padding: 1rem;
   display: flex;
   justify-content: center;

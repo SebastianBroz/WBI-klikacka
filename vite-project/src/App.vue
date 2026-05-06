@@ -77,13 +77,13 @@ watch(() => store.count, (count) => {
               <img src="/pics/potato_grown.png" v-if="selectedPlant === 'potatoes'" style="pointer-events: none;">
               <p>{{store.count}}</p>
             </div>
-            <div v-if="selectedPlant === 'trees'" class="fields" style="background-image: url(/pics/grass_floor.png);">
-              <Field v-for="n in 30" :key="n" />
-            </div>
-            <div v-if="selectedPlant === 'mushrooms'" class="fields" style="background-image: url(/pics/forest_floor.png);">
-              <Field v-for="n in 30" :key="n" />
-            </div>
-            <div v-if="selectedPlant === 'potatoes'" class="fields" style="background-image: url(/pics/soil_floor.png);">
+            <div
+              id="fields-area"
+              class="fields"
+              :style="selectedPlant === 'trees'     ? 'background-image: url(/pics/grass_floor.png)'  :
+                      selectedPlant === 'mushrooms' ? 'background-image: url(/pics/forest_floor.png)' :
+                                                      'background-image: url(/pics/soil_floor.png)'"
+            >
               <Field v-for="n in 30" :key="n" />
             </div>
           <Audio />
@@ -245,6 +245,7 @@ main {
   height: 2rem;
 }
 .fields {
+  position: relative;
   display: grid;
   /* each column is at least 5rem but will expand to fill available space evenly */
   grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));

@@ -7,6 +7,8 @@ import SingleCollectible from './SingleCollectible.vue';
 const store = useCounterStore();
 const progress = ref(0);
 const dropped = ref(false);
+const collectX = ref(50);
+const collectY = ref(50);
 
 const growthStage = computed(() => {
   if (progress.value < 33) return 'sapling'
@@ -35,6 +37,8 @@ const startTimer = () => {
 const collectibleDrop = () => {
   const chance = Math.trunc(Math.random() * 100)
   if (chance < 5) {
+    collectX.value = 10 + Math.random() * 70;
+    collectY.value = 10 + Math.random() * 70;
     dropped.value = true;
   }
 }
@@ -58,7 +62,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <SingleCollectible v-if="dropped" @collect="onCollect" />
+  <Teleport to="#fields-area">
+    <SingleCollectible v-if="dropped" @collect="onCollect" :x="collectX" :y="collectY" />
+  </Teleport>
   <div class="field" @click="handleClick()">
     <img v-if="selectedPlant === 'trees' && growthStage === 'sapling'" src="/pics/tree_sapling.png"  style="pointer-events: none;">
     <img v-if="selectedPlant === 'trees' && growthStage === 'middle'"  src="/pics/tree_middle.png"   style="pointer-events: none;">
