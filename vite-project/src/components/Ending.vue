@@ -71,15 +71,17 @@ const emit = defineEmits<{ close: [] }>();
 }
 .closeBtn {
   margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
+  padding: 0.25rem 0.75rem;
   font-size: 1.2rem;
-  background-image: url('/pics/wooden_board.png');
   background-size: cover;
   color: #f7f9f9;
   border: none;
   cursor: pointer;
+  background-color: #5c3c35;
+  border: 2px solid white;
+  border-radius: 0.25rem;
 }
 .closeBtn:hover {
-  background-color: #a76d607b;
+  background-color: #a76d60;
 }
 </style>
