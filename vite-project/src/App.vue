@@ -46,7 +46,6 @@ const endingAchievements: Record<string, { title: string; description: string; i
 
 watch(() => store.count, (count) => {
   if (count >= 10) {
-    endingDismissed.value = false;
     const achievement = endingAchievements[selectedPlant.value];
     if (achievement) {
       store.addAchievement(achievement);
