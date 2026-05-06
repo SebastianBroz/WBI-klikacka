@@ -6,7 +6,7 @@ https://claude.ai/share/fd8cab84-7071-4043-ae01-7f617112934a
 -->
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import ChoosePlant from './components/ChoosePlant.vue';
 import Field from './components/Field.vue';
 import Offer from './components/Offer.vue';
@@ -20,17 +20,46 @@ import { selectedPlant, isChoosingPlant } from './composables/usePlant'
 const store = useCounterStore();
 
 const currentSection = ref('shopOffers');
+const endingDismissed = ref(false);
 
 const changeSection = (section: string) => {
   currentSection.value = section;
 };
+
+const endingAchievements: Record<string, { title: string; description: string; img: string }> = {
+  trees: {
+    title: 'Forest Ending',
+    description: 'You filled the planet with trees and saved humanity from extinction!',
+    img: '/pics/achievement_forest_ending.png',
+  },
+  mushrooms: {
+    title: 'Zombie Ending',
+    description: 'The mycelium consumed all life on Earth. All intelligent life ceased to exist.',
+    img: '/pics/achievement_mushroom_ending.png',
+  },
+  potatoes: {
+    title: 'Potato Ending',
+    description: 'You ended world hunger and buried the planet in potatoes. Congrats, I guess.',
+    img: '/pics/achievement_potato_ending.png',
+  },
+};
+
+watch(() => store.count, (count) => {
+  if (count >= 10) {
+    endingDismissed.value = false;
+    const achievement = endingAchievements[selectedPlant.value];
+    if (achievement) {
+      store.addAchievement(achievement);
+    }
+  }
+});
 </script>
 
 <template>
   <div class="container">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
-      <Ending v-if="store.count === 1000000000"/>
+      <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
           <section class="stats">
             <div class="buffOrNerf">
               <div class="temporary">
@@ -85,13 +114,14 @@ const changeSection = (section: string) => {
                   img="/pics/perk_rainstorm.png"  />
               </ul>
               <ul v-if="currentSection === 'achievements'" class="achievementsList">
-                <Achievement 
-                  v-for="n in 5" 
-                  :key="n" 
-                  title="title" 
-                  description="desc" 
-                  img="/pics/achievement_forest_ending.png" 
+                <Achievement
+                  v-for="achievement in store.achievements"
+                  :key="achievement.title"
+                  :title="achievement.title"
+                  :description="achievement.description"
+                  :img="achievement.img"
                 />
+                <li v-if="store.achievements.length === 0" class="noAchievements">No achievements yet. Keep playing!</li>
               </ul>
             </section>
             <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
@@ -297,6 +327,15 @@ main {
   border: 5px solid #601700;
   overflow: auto;
   max-height: 34em;
+}
+.noAchievements {
+  padding: 1.5rem;
+  color: #f7f9f9;
+  text-align: center;
+  font-size: 1.2rem;
+  list-style: none;
+  background-image: url('/pics/wooden_planks.png');
+  background-size: cover;
 }
 footer {
   width: 100%;
