@@ -114,9 +114,9 @@ watch(() => store.fertilizerLevel, (level) => {
   }
 });
 
-const DAY_DURATION   = 14400  // seconds
-const RAIN_DURATION  = 360 // seconds
-const INSECT_DISPLAY = 360   // seconds
+const DAY_DURATION   = 1  // should be 14400 seconds
+const RAIN_DURATION  = 30 // should be 360 seconds
+const INSECT_DISPLAY = 30   // should be 360 seconds
 
 let dayTimer: ReturnType<typeof setTimeout> | null = null
 let eventTimer: ReturnType<typeof setTimeout> | null = null

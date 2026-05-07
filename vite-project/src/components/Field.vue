@@ -16,6 +16,7 @@ const progress = ref(0);
 const collectibles = ref<Collectible[]>([]);
 const floatingNumbers = ref<FloatNumber[]>([]);
 const perkDrop = ref<PerkDrop | null>(null);
+const isBouncing = ref(false);
 let nextId = 0;
 let floatId = 0;
 const collectibleTimers = new Map<number, ReturnType<typeof setTimeout>[]>();
@@ -126,6 +127,8 @@ const doFieldTick = () => {
 
 const handleClick = () => {
   doFieldTick()
+  isBouncing.value = true
+  setTimeout(() => isBouncing.value = false, 500)
   if (store.bigCursorPerkOwned && fieldEl.value) {
     triggerBigClick(fieldEl.value)
   }
@@ -177,15 +180,15 @@ onUnmounted(() => {
       :key="f.id"
       class="floatNumber"
     >+{{ Math.round(f.value) }}</div>
-    <img v-if="selectedPlant === 'trees' && growthStage === 'sapling'" src="/pics/tree_sapling.png"  style="pointer-events: none;">
-    <img v-if="selectedPlant === 'trees' && growthStage === 'middle'"  src="/pics/tree_middle.png"   style="pointer-events: none;">
-    <img v-if="selectedPlant === 'trees' && growthStage === 'grown'"   src="/pics/tree_grown.png"    style="pointer-events: none;">
-    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'sapling'" src="/pics/mushroom_sapling.png" style="pointer-events: none;">
-    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'middle'"  src="/pics/mushroom_middle.png"  style="pointer-events: none;">
-    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'grown'"   src="/pics/mushroom_grown.png"   style="pointer-events: none;">
-    <img v-if="selectedPlant === 'potatoes' && growthStage === 'sapling'" src="/pics/potato_sapling.png" style="pointer-events: none;">
-    <img v-if="selectedPlant === 'potatoes' && growthStage === 'middle'"  src="/pics/potato_middle.png"  style="pointer-events: none;">
-    <img v-if="selectedPlant === 'potatoes' && growthStage === 'grown'"   src="/pics/potato_grown.png"   style="pointer-events: none;">
+    <img v-if="selectedPlant === 'trees' && growthStage === 'sapling'" src="/pics/tree_sapling.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'trees' && growthStage === 'middle'"  src="/pics/tree_middle.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'trees' && growthStage === 'grown'"   src="/pics/tree_grown.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'sapling'" src="/pics/mushroom_sapling.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'middle'"  src="/pics/mushroom_middle.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'mushrooms' && growthStage === 'grown'"   src="/pics/mushroom_grown.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'potatoes' && growthStage === 'sapling'" src="/pics/potato_sapling.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'potatoes' && growthStage === 'middle'"  src="/pics/potato_middle.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
+    <img v-if="selectedPlant === 'potatoes' && growthStage === 'grown'"   src="/pics/potato_grown.png" :class="{ bouncing: isBouncing }" style="pointer-events: none;">
     <div class="timeBar" :style="{ '--width': progress }"></div>
   </div>
 </template>
@@ -220,6 +223,14 @@ onUnmounted(() => {
 @keyframes floatUp {
   0%   { opacity: 1;   transform: translateX(-50%) translateY(0); }
   100% { opacity: 0;   transform: translateX(-50%) translateY(-2.5rem); }
+}
+.bouncing {
+  animation: bounce 0.5s ease;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
 }
 .timeBar
 {
