@@ -226,46 +226,49 @@ onUnmounted(() => {
                 <button @click="changeSection('perksList')">PERKS</button>
                 <button @click="changeSection('achievements')">ACHIEVEMENTS</button>
               </div>
-              <!-- Conditional rendering based on currentSection -->
-              <ul v-if="currentSection === 'shopOffers'" class="shopOffers">
-                <Offer
-                  title="Fertilizer"
-                  description="Triples crop yield per harvest. Price multiplies by 50 each purchase."
-                  img="/placeholder.jpeg"
-                  :cost="store.fertilizerCost"
-                  :canAfford="store.count >= store.fertilizerCost"
-                  @buy="store.buyFertilizer()"
-                />
-                <Offer
-                  title="Pesticides"
-                  description="Prevents insect attacks for 5 hours. Price multiplies by 3 each purchase."
-                  img="/placeholder.jpeg"
-                  :cost="store.pesticideCost"
-                  :canAfford="store.count >= store.pesticideCost"
-                  @buy="store.buyPesticide()"
-                />
-              </ul>
-              <ul v-if="currentSection === 'perksList'" class="perksList">
-                <Perk
-                  title="Titan's Touch"
-                  description="Your clicks shake the earth. The radial effect becomes massive."
-                  img="/pics/perk_rainstorm.png"
-                  :cost="500"
-                  :canAfford="store.count >= 500"
-                  :owned="store.bigCursorPerkOwned"
-                  @buy="store.buyCursorPerk()"
-                />
-              </ul>
-              <ul v-if="currentSection === 'achievements'" class="achievementsList">
-                <Achievement
-                  v-for="achievement in store.achievements"
-                  :key="achievement.title"
-                  :title="achievement.title"
-                  :description="achievement.description"
-                  :img="achievement.img"
-                />
-                <li v-if="store.achievements.length === 0" class="noAchievements">No achievements yet. Keep playing!</li>
-              </ul>
+              <Transition name="options-switch" mode="out-in">
+                <div :key="currentSection" class="optionsPanel">
+                  <ul v-if="currentSection === 'shopOffers'" class="shopOffers">
+                    <Offer
+                      title="Fertilizer"
+                      description="Triples crop yield per harvest. Price multiplies by 50 each purchase."
+                      img="/placeholder.jpeg"
+                      :cost="store.fertilizerCost"
+                      :canAfford="store.count >= store.fertilizerCost"
+                      @buy="store.buyFertilizer()"
+                    />
+                    <Offer
+                      title="Pesticides"
+                      description="Prevents insect attacks for 5 hours. Price multiplies by 3 each purchase."
+                      img="/placeholder.jpeg"
+                      :cost="store.pesticideCost"
+                      :canAfford="store.count >= store.pesticideCost"
+                      @buy="store.buyPesticide()"
+                    />
+                  </ul>
+                  <ul v-else-if="currentSection === 'perksList'" class="perksList">
+                    <Perk
+                      title="Titan's Touch"
+                      description="Your clicks shake the earth. The radial effect becomes massive."
+                      img="/pics/perk_rainstorm.png"
+                      :cost="500"
+                      :canAfford="store.count >= 500"
+                      :owned="store.bigCursorPerkOwned"
+                      @buy="store.buyCursorPerk()"
+                    />
+                  </ul>
+                  <ul v-else class="achievementsList">
+                    <Achievement
+                      v-for="achievement in store.achievements"
+                      :key="achievement.title"
+                      :title="achievement.title"
+                      :description="achievement.description"
+                      :img="achievement.img"
+                    />
+                    <li v-if="store.achievements.length === 0" class="noAchievements">No achievements yet. Keep playing!</li>
+                  </ul>
+                </div>
+              </Transition>
             </section>
             <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
           </section>
@@ -446,7 +449,6 @@ main {
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
 }
 ::-webkit-scrollbar
 {
@@ -489,6 +491,26 @@ main {
 /*.optionsMenu button:active {
   background-color: #942301;
 }*/
+.optionsPanel {
+  min-height: 12rem;
+}
+.options-switch-enter-active,
+.options-switch-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.options-switch-enter-from {
+  opacity: 0;
+  transform: translateX(1.5rem);
+}
+.options-switch-leave-to {
+  opacity: 0;
+  transform: translateX(-1.5rem);
+}
+.options-switch-enter-to,
+.options-switch-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
 .shopOffers
 {
   border: 5px solid #601700;
