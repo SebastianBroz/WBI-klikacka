@@ -6,7 +6,7 @@ https://claude.ai/share/fd8cab84-7071-4043-ae01-7f617112934a
 -->
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import ChoosePlant from './components/ChoosePlant.vue';
 import Field from './components/Field.vue';
 import Offer from './components/Offer.vue';
@@ -16,6 +16,7 @@ import Ending from './components/Ending.vue';
 import { useCounterStore } from "./stores/counter.ts"
 import Audio from "./components/Audio.vue"
 import { selectedPlant, isChoosingPlant } from './composables/usePlant'
+import { activeEvent, eventTimeRemaining } from './composables/useEvents'
 
 const store = useCounterStore();
 
@@ -52,6 +53,52 @@ watch(() => store.count, (count) => {
     }
   }
 });
+
+const DAY_DURATION   = 1  // seconds
+const RAIN_DURATION  = 30   // seconds
+const INSECT_DISPLAY = 30   // seconds (deduction is instant, display lingers)
+
+let dayTimer: ReturnType<typeof setTimeout> | null = null
+let eventTimer: ReturnType<typeof setTimeout> | null = null
+let countdownInterval: ReturnType<typeof setInterval> | null = null
+
+const startCountdown = (seconds: number) => {
+  eventTimeRemaining.value = seconds
+  if (countdownInterval) clearInterval(countdownInterval)
+  countdownInterval = setInterval(() => {
+    eventTimeRemaining.value--
+    if (eventTimeRemaining.value <= 0) {
+      activeEvent.value = null
+      clearInterval(countdownInterval!)
+    }
+  }, 1000)
+}
+
+const scheduleDayEvents = () => {
+  if (Math.random() < 0.5) {
+    const delay = Math.floor(Math.random() * DAY_DURATION * 1000)
+    const type = Math.random() < 0.5 ? 'rain' : 'insect_attack'
+    eventTimer = setTimeout(() => {
+      if (activeEvent.value !== null) return
+      if (type === 'insect_attack') store.applyInsectAttack()
+      activeEvent.value = type
+      startCountdown(type === 'rain' ? RAIN_DURATION : INSECT_DISPLAY)
+    }, delay)
+  }
+  dayTimer = setTimeout(() => scheduleDayEvents(), DAY_DURATION * 1000)
+}
+
+const countdownDisplay = computed(() => {
+  const s = eventTimeRemaining.value
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+})
+
+onMounted(() => scheduleDayEvents())
+onUnmounted(() => {
+  if (dayTimer) clearTimeout(dayTimer)
+  if (eventTimer) clearTimeout(eventTimer)
+  if (countdownInterval) clearInterval(countdownInterval)
+})
 </script>
 
 <template>
@@ -60,12 +107,12 @@ watch(() => store.count, (count) => {
       <ChoosePlant v-if="isChoosingPlant"/>
       <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
           <section class="stats">
-            <div class="buffOrNerf">
+            <div class="buffOrNerf" v-if="activeEvent">
               <div class="temporary">
-                <img src="/pics/perk_rainstorm.png" style="pointer-events: none;">
-                <p>Rainstorm</p>
+                <img :src="activeEvent === 'rain' ? '/pics/event_rain.png' : '/pics/event_insect_attack.png'" style="pointer-events: none;">
+                <p>{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
               </div>
-              <p class="countdown">4:58</p>
+              <p class="countdown">{{ countdownDisplay }}</p>
             </div>
             <div class="treesPerClick">
               <img src="/pics/clock_tpc.png" style="pointer-events: none;">

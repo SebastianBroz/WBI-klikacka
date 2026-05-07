@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { selectedPlant } from '../composables/usePlant'
+import { isRainActive } from '../composables/useEvents'
 import { useCounterStore } from "../stores/counter.ts"
 import SingleCollectible from './SingleCollectible.vue';
 
@@ -22,19 +23,23 @@ let gameInterval: ReturnType<typeof setInterval> | null = null;
 let progressInterval: ReturnType<typeof setInterval> | null = null;
 
 const startTimer = () => {
+  const duration = isRainActive.value ? 5000 : 10000
+  const progressStep = isRainActive.value ? 0.2 : 0.1
   if (gameInterval) clearInterval(gameInterval)
   gameInterval = setInterval(() => {
     store.increment(1)
     progress.value = 0
     startTimer()
-  }, 10000)
+  }, duration)
 
   progress.value = 0
   if (progressInterval) clearInterval(progressInterval)
   progressInterval = setInterval(() => {
-    progress.value += 0.1
+    progress.value += progressStep
   }, 10)
 }
+
+watch(isRainActive, () => startTimer())
 
 const removeCollectible = (id: number) => {
   const idx = collectibles.value.findIndex(c => c.id === id)
