@@ -255,6 +255,9 @@ p, img, button {
 html, body, #app {
   min-height: 100vh;
 }
+* {
+  cursor: none !important;
+}
 template {
   height: 100%;
 }
