@@ -64,7 +64,7 @@ export const fertilizerMasterAchievement = {
 
 export function setupAchievementWatchers(store: ReturnType<typeof useCounterStore>) {
     watch(() => store.count, (count) => {
-        if (count >= 10) {
+        if (count >= 1000000) {
             const achievement = endingAchievements[selectedPlant.value];
             if (achievement) {
                 store.addAchievement(achievement);
