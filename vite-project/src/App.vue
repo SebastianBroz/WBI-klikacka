@@ -17,7 +17,7 @@ import { useCounterStore } from "./stores/counter.ts"
 import Audio from "./components/Audio.vue"
 import CustomCursor from "./components/CustomCursor.vue"
 import { selectedPlant, isChoosingPlant, resetPlantSelection } from './composables/usePlant'
-import { activeEvent } from './composables/useEvents'
+import { activeEvent, eventTimeRemaining } from './composables/useEvents'
 import { setupAchievementWatchers } from './composables/useAchievements'
 import { setupEventLogic, cleanupEventLogic } from './composables/useEventLogic'
 import { useShop } from './composables/useShop'
@@ -45,6 +45,10 @@ const confirmReset = () => {
   showResetConfirm.value = false;
   store.resetGame();
   resetPlantSelection();
+  cleanupEventLogic();
+  activeEvent.value = null;
+  eventTimeRemaining.value = 0;
+  scheduleDayEvents();
 };
 
 const cancelReset = () => {
