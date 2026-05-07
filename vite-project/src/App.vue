@@ -31,7 +31,6 @@ const { scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPestic
 const { shopItems } = useShop(store);
 
 const currentSection = ref('shopOffers');
-const endingDismissed = ref(false);
 const showResetConfirm = ref(false);
 
 const changeSection = (section: string) => {
@@ -46,7 +45,6 @@ const confirmReset = () => {
   showResetConfirm.value = false;
   store.resetGame();
   resetPlantSelection();
-  endingDismissed.value = false;
 };
 
 const cancelReset = () => {
@@ -114,7 +112,7 @@ onUnmounted(() => {
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
       <Transition name="ending-popup">
-        <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
+        <Ending v-if="store.count >= 10 && !store.endingDismissed" @close="store.endingDismissed = true"/>
       </Transition>
           <section class="stats">
             <Transition name="event-banner">
@@ -151,7 +149,10 @@ onUnmounted(() => {
             >
               <Field v-for="n in 32" :key="n" />
             </div>
-          <Audio />
+            <div class="settings">
+              <Audio />
+              <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
+            </div>
           </section>
           <section class="optionsAndLogo">
             <section class="options">
@@ -194,7 +195,6 @@ onUnmounted(() => {
                   </ul>
                 </div>
               </Transition>
-              <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
             </section>
             <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
           </section>
@@ -395,6 +395,9 @@ main {
   width: 100%;
   max-width: 50rem;
 }
+.settings{
+  display: flex;
+}
 .options {
   display: flex;
   flex-direction: column;
@@ -481,7 +484,6 @@ main {
   opacity: 0.85;
 }
 
-/* ── Reset confirmation modal ─────────────────────────── */
 .reset-overlay {
   position: fixed;
   inset: 0;
@@ -564,7 +566,6 @@ main {
   opacity: 0.8;
 }
 
-/* modal enter/leave */
 .reset-modal-enter-active,
 .reset-modal-leave-active {
   transition: opacity 0.25s ease;

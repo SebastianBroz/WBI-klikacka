@@ -19,6 +19,7 @@ export const useCounterStore = defineStore("counter", {
             bigCursorPerkOwned: false,
             perkDropActive: false,
             lastSessionTime: 0,
+            endingDismissed: false,
         };
     },
     actions: {
@@ -83,6 +84,7 @@ export const useCounterStore = defineStore("counter", {
                 bigCursorPerkOwned: this.bigCursorPerkOwned,
                 achievements: this.achievements,
                 lastSessionTime: Date.now(),
+                endingDismissed: this.endingDismissed,
             };
             localStorage.setItem('wbi-klikacka-save', JSON.stringify(gameData));
         },
@@ -98,6 +100,7 @@ export const useCounterStore = defineStore("counter", {
                     this.bigCursorPerkOwned = data.bigCursorPerkOwned || false;
                     this.achievements = data.achievements || [];
                     this.lastSessionTime = data.lastSessionTime || 0;
+                    this.endingDismissed = data.endingDismissed || false;
                 } catch (e) {
                     console.error('Chyba při načítání hry:', e);
                 }
@@ -130,6 +133,7 @@ export const useCounterStore = defineStore("counter", {
             this.bigCursorPerkOwned = false;
             this.perkDropActive = false;
             this.lastSessionTime = 0;
+            this.endingDismissed = false;
 
             // Vymaž všechny uložené údaje
             localStorage.removeItem('wbi-klikacka-save');
