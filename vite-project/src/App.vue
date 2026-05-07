@@ -124,13 +124,15 @@ onUnmounted(() => {
       <ChoosePlant v-if="isChoosingPlant"/>
       <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
           <section class="stats">
-            <div class="buffOrNerf" v-if="activeEvent">
-              <div class="temporary">
-                <img :src="activeEvent === 'rain' ? '/pics/event_rain.png' : '/pics/event_insect_attack.png'" style="pointer-events: none;">
-                <p>{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
+            <Transition name="event-banner">
+              <div class="buffOrNerf" v-if="activeEvent">
+                <div class="temporary">
+                  <img :src="activeEvent === 'rain' ? '/pics/event_rain.png' : '/pics/event_insect_attack.png'" style="pointer-events: none;">
+                  <p>{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
+                </div>
+                <p class="countdown">{{ countdownDisplay }}</p>
               </div>
-              <p class="countdown">{{ countdownDisplay }}</p>
-            </div>
+            </Transition>
             <div class="pesticideTimer" v-if="pesticideTimeRemaining">
               <img src="" style="pointer-events: none;">
               <p>Pesticide: {{ pesticideTimeRemaining }}</p>
@@ -152,7 +154,7 @@ onUnmounted(() => {
                       selectedPlant === 'mushrooms' ? 'background-image: url(/pics/forest_floor.png)' :
                                                       'background-image: url(/pics/soil_floor.png)'"
             >
-              <Field v-for="n in 30" :key="n" />
+              <Field v-for="n in 32" :key="n" />
             </div>
           <Audio />
           </section>
@@ -263,9 +265,27 @@ main {
 .stats {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 1rem;
   width: 100%;
+  height: 100vh;
+}
+.event-banner-enter-active {
+  animation: eventSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.event-banner-leave-active {
+  animation: eventSlideIn 0.3s ease-in reverse both;
+}
+@keyframes eventSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-1.5rem) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 .buffOrNerf{
   background-image: url(/pics/golden_bg.png);
