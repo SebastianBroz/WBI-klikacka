@@ -16,6 +16,7 @@ export const useCounterStore = defineStore("counter", {
             pesticideLevel: 0,
             pesticideExpiry: 0,
             bigCursorPerkOwned: false,
+            perkDropActive: false,
         };
     },
     actions: {
@@ -59,11 +60,12 @@ export const useCounterStore = defineStore("counter", {
                 this.pesticideLevel = level + 1;
             }
         },
-        buyCursorPerk() {
-            if (!this.bigCursorPerkOwned && this.count >= 500) {
-                this.count -= 500;
-                this.bigCursorPerkOwned = true;
-            }
+        dropCursorPerk() {
+            this.perkDropActive = true;
+        },
+        collectCursorPerk() {
+            this.bigCursorPerkOwned = true;
+            this.perkDropActive = false;
         },
     },
     getters: {

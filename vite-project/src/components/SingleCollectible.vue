@@ -4,7 +4,7 @@ Nuti to uzivatele byt aktivni, pokud chce maximalni rust ve hre-->
 <script setup lang="ts">
 import { selectedPlant } from '../composables/usePlant'
 /*WORK IN PROGRESS KOMPONENTA*/
-const props = defineProps<{ x: number; y: number; flashing: boolean }>();
+const props = defineProps<{ x: number; y: number; flashing: boolean; img?: string }>();
 const emit = defineEmits<{ collect: [] }>()
 </script>
 
@@ -15,9 +15,14 @@ const emit = defineEmits<{ collect: [] }>()
     @click.stop="emit('collect')"
     :style="{ top: props.y + '%', left: props.x + '%' }"
   >
-    <img v-if="selectedPlant === 'trees'"     src="/pics/tree_grown.png"     style="pointer-events: none;">
-    <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png" style="pointer-events: none;">
-    <img v-if="selectedPlant === 'potatoes'"  src="/pics/potato_grown.png"   style="pointer-events: none;">
+    <template v-if="props.img">
+      <img :src="props.img" style="pointer-events: none;">
+    </template>
+    <template v-else>
+      <img v-if="selectedPlant === 'trees'"     src="/pics/tree_grown.png"     style="pointer-events: none;">
+      <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png" style="pointer-events: none;">
+      <img v-if="selectedPlant === 'potatoes'"  src="/pics/potato_grown.png"   style="pointer-events: none;">
+    </template>
   </div>
 </template>
 

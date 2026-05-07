@@ -4,17 +4,25 @@ import { selectedPlant } from '../composables/usePlant'
 import { isRainActive } from '../composables/useEvents'
 import { useCounterStore } from "../stores/counter.ts"
 import SingleCollectible from './SingleCollectible.vue';
+import { bigClickSignal, triggerBigClick, BIG_CLICK_RADIUS } from '../composables/useBigClick'
 
 interface Collectible { id: number; x: number; y: number; flashing: boolean }
 interface FloatNumber { id: number; value: number }
+interface PerkDrop { x: number; y: number; flashing: boolean }
 
 const store = useCounterStore();
+const fieldEl = ref<HTMLElement | null>(null);
 const progress = ref(0);
 const collectibles = ref<Collectible[]>([]);
 const floatingNumbers = ref<FloatNumber[]>([]);
+const perkDrop = ref<PerkDrop | null>(null);
 let nextId = 0;
 let floatId = 0;
 const collectibleTimers = new Map<number, ReturnType<typeof setTimeout>[]>();
+let perkFlashTimer: ReturnType<typeof setTimeout> | null = null;
+let perkRemoveTimer: ReturnType<typeof setTimeout> | null = null;
+
+const PERK_DROP_CHANCE = import.meta.env.DEV ? 1.0 : 0.005;
 
 const growthStage = computed(() => {
   if (progress.value < 33) return 'sapling'
@@ -83,19 +91,66 @@ const onCollect = (id: number) => {
   removeCollectible(id)
 }
 
-const handleClick = () => {
-  const gain = 1 * store.fertilizerMultiplier
+const removePerkDrop = () => {
+  perkDrop.value = null
+  store.perkDropActive = false
+  if (perkFlashTimer) { clearTimeout(perkFlashTimer); perkFlashTimer = null }
+  if (perkRemoveTimer) { clearTimeout(perkRemoveTimer); perkRemoveTimer = null }
+}
+
+const tryPerkDrop = () => {
+  if (store.bigCursorPerkOwned || store.perkDropActive) return
+  if (Math.random() >= PERK_DROP_CHANCE) return
+  store.dropCursorPerk()
+  perkDrop.value = { x: 10 + Math.random() * 70, y: 10 + Math.random() * 70, flashing: false }
+  perkFlashTimer = setTimeout(() => {
+    if (perkDrop.value) perkDrop.value.flashing = true
+  }, 10000)
+  perkRemoveTimer = setTimeout(() => removePerkDrop(), 15000)
+}
+
+const onCollectPerk = () => {
+  store.collectCursorPerk()
+  perkDrop.value = null
+  if (perkFlashTimer) { clearTimeout(perkFlashTimer); perkFlashTimer = null }
+  if (perkRemoveTimer) { clearTimeout(perkRemoveTimer); perkRemoveTimer = null }
+}
+
+const doFieldTick = () => {
   store.increment(1)
-  spawnFloat(gain)
+  spawnFloat(1 * store.fertilizerMultiplier)
   startTimer()
   collectibleDrop()
+  tryPerkDrop()
 }
+
+const handleClick = () => {
+  doFieldTick()
+  if (store.bigCursorPerkOwned && fieldEl.value) {
+    triggerBigClick(fieldEl.value)
+  }
+}
+
+watch(bigClickSignal, (signal) => {
+  if (!signal || !fieldEl.value || signal.sourceEl === fieldEl.value) return
+  const myRect = fieldEl.value.getBoundingClientRect()
+  const srcRect = signal.sourceEl.getBoundingClientRect()
+  const myCX = myRect.left + myRect.width / 2
+  const myCY = myRect.top + myRect.height / 2
+  const srcCX = srcRect.left + srcRect.width / 2
+  const srcCY = srcRect.top + srcRect.height / 2
+  if (Math.hypot(myCX - srcCX, myCY - srcCY) < BIG_CLICK_RADIUS) {
+    doFieldTick()
+  }
+})
 
 onMounted(() => startTimer())
 onUnmounted(() => {
   if (gameInterval) clearInterval(gameInterval)
   if (progressInterval) clearInterval(progressInterval)
   collectibleTimers.forEach(timers => timers.forEach(clearTimeout))
+  if (perkFlashTimer) clearTimeout(perkFlashTimer)
+  if (perkRemoveTimer) clearTimeout(perkRemoveTimer)
 })
 </script>
 
@@ -108,7 +163,15 @@ onUnmounted(() => {
     :flashing="c.flashing"
     @collect="onCollect(c.id)"
   />
-  <div class="field" @click="handleClick()">
+  <SingleCollectible
+    v-if="perkDrop"
+    :x="perkDrop.x"
+    :y="perkDrop.y"
+    :flashing="perkDrop.flashing"
+    img="/pics/perk_rainstorm.png"
+    @collect="onCollectPerk()"
+  />
+  <div class="field" ref="fieldEl" @click="handleClick()">
     <div
       v-for="f in floatingNumbers"
       :key="f.id"

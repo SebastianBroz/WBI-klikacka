@@ -114,9 +114,9 @@ watch(() => store.fertilizerLevel, (level) => {
   }
 });
 
-const DAY_DURATION   = 1  // seconds
-const RAIN_DURATION  = 30   // seconds
-const INSECT_DISPLAY = 30   // seconds (deduction is instant, display lingers)
+const DAY_DURATION   = 14400  // seconds
+const RAIN_DURATION  = 360 // seconds
+const INSECT_DISPLAY = 360   // seconds
 
 let dayTimer: ReturnType<typeof setTimeout> | null = null
 let eventTimer: ReturnType<typeof setTimeout> | null = null
@@ -183,7 +183,7 @@ onUnmounted(() => {
   <div class="container">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
-      <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
+      <Ending v-if="store.count >= 1000000000 && !endingDismissed" @close="endingDismissed = true"/>
           <section class="stats">
             <Transition name="event-banner">
               <div class="buffOrNerf" v-if="activeEvent">
@@ -249,12 +249,9 @@ onUnmounted(() => {
                   <ul v-else-if="currentSection === 'perksList'" class="perksList">
                     <Perk
                       title="Titan's Touch"
-                      description="Your clicks shake the earth. The radial effect becomes massive."
+                      description="Your clicks shake the earth. The radial effect becomes massive. Drop chance: 0.5% per click."
                       img="/pics/perk_rainstorm.png"
-                      :cost="500"
-                      :canAfford="store.count >= 500"
                       :owned="store.bigCursorPerkOwned"
-                      @buy="store.buyCursorPerk()"
                     />
                   </ul>
                   <ul v-else class="achievementsList">
