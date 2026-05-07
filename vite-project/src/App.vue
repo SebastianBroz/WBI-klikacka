@@ -137,7 +137,7 @@ onUnmounted(() => {
             </div>
             <div class="treesPerClick">
               <img src="/pics/clock_tpc.png" style="pointer-events: none;">
-              <p>Trees per click: --var</p>
+              <p>{{ selectedPlant.charAt(0).toUpperCase() + selectedPlant.slice(1) }} per click: {{ Math.round(store.fertilizerMultiplier) }}</p>
             </div>
             <div class="currencyCount">
               <img src="/pics/tree_grown.png" v-if="selectedPlant === 'trees'" style="pointer-events: none;">
