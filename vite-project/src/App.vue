@@ -121,10 +121,15 @@ onUnmounted(() => {
       </Transition>
           <section class="stats">
             <Transition name="event-banner">
-              <div class="buffOrNerf" v-if="activeEvent">
+              <div class="buffOrNerf" :class="activeEvent === 'rain' ? 'buffOrNerf--buff' : 'buffOrNerf--nerf'" v-if="activeEvent">
                 <div class="temporary">
                   <img :src="activeEvent === 'rain' ? '/pics/event_rain.png' : '/pics/event_insect_attack.png'" style="pointer-events: none;">
-                  <p>{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
+                  <p class="event-name">{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
+                  <p class="event-tip" :class="activeEvent === 'rain' ? 'event-tip--buff' : 'event-tip--nerf'">
+                    {{ activeEvent === 'rain'
+                      ? '▲ Fields grow 2× faster!'
+                      : '▼ Lose 30% of recent gains' }}
+                  </p>
                 </div>
                 <p class="countdown">{{ countdownDisplay }}</p>
               </div>
@@ -330,12 +335,43 @@ main {
   gap: 2rem;
   border-radius: 0.5rem;
   padding: 0.5rem 2rem;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.buffOrNerf--buff {
+  border-color: #4cff80;
+  box-shadow: 0 0 10px rgba(76, 255, 128, 0.25);
+}
+.buffOrNerf--nerf {
+  border-color: #ff5555;
+  box-shadow: 0 0 10px rgba(255, 85, 85, 0.25);
 }
 .temporary
 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.15rem;
+}
+.event-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #f7e0c8;
+}
+.event-tip {
+  font-size: 0.85rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  letter-spacing: 0.03em;
+}
+.event-tip--buff {
+  color: #2aff6a;
+  background: rgba(0, 80, 20, 0.55);
+}
+.event-tip--nerf {
+  color: #ff7070;
+  background: rgba(80, 0, 0, 0.55);
 }
 .buffOrNerf .countdown{
   font-weight: 900;
