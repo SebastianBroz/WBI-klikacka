@@ -20,6 +20,8 @@ export const useCounterStore = defineStore("counter", {
             perkDropActive: false,
             lastSessionTime: 0,
             endingDismissed: false,
+            savedActiveEvent: null as 'rain' | 'insect_attack' | null,
+            savedEventExpiry: 0,
         };
     },
     actions: {
@@ -85,6 +87,8 @@ export const useCounterStore = defineStore("counter", {
                 achievements: this.achievements,
                 lastSessionTime: Date.now(),
                 endingDismissed: this.endingDismissed,
+                savedActiveEvent: this.savedActiveEvent,
+                savedEventExpiry: this.savedEventExpiry,
             };
             localStorage.setItem('wbi-klikacka-save', JSON.stringify(gameData));
         },
@@ -101,6 +105,8 @@ export const useCounterStore = defineStore("counter", {
                     this.achievements = data.achievements || [];
                     this.lastSessionTime = data.lastSessionTime || 0;
                     this.endingDismissed = data.endingDismissed || false;
+                    this.savedActiveEvent = data.savedActiveEvent || null;
+                    this.savedEventExpiry = data.savedEventExpiry || 0;
                 } catch (e) {
                     console.error('Chyba při načítání hry:', e);
                 }
@@ -134,6 +140,8 @@ export const useCounterStore = defineStore("counter", {
             this.perkDropActive = false;
             this.lastSessionTime = 0;
             this.endingDismissed = false;
+            this.savedActiveEvent = null;
+            this.savedEventExpiry = 0;
 
             // Vymaž všechny uložené údaje
             localStorage.removeItem('wbi-klikacka-save');

@@ -18,9 +18,23 @@ export function setupEventLogic(store: ReturnType<typeof useCounterStore>) {
             eventTimeRemaining.value--
             if (eventTimeRemaining.value <= 0) {
                 activeEvent.value = null
+                store.savedActiveEvent = null
+                store.savedEventExpiry = 0
                 clearInterval(countdownInterval!)
             }
         }, 1000)
+    }
+
+    const restoreEvent = () => {
+        if (!store.savedActiveEvent) return
+        const remaining = Math.ceil((store.savedEventExpiry - Date.now()) / 1000)
+        if (remaining <= 0) {
+            store.savedActiveEvent = null
+            store.savedEventExpiry = 0
+            return
+        }
+        activeEvent.value = store.savedActiveEvent
+        startCountdown(remaining)
     }
 
     const scheduleDayEvents = () => {
@@ -31,8 +45,11 @@ export function setupEventLogic(store: ReturnType<typeof useCounterStore>) {
                 if (activeEvent.value !== null) return
                 if (type === 'insect_attack' && Date.now() < store.pesticideExpiry) return
                 if (type === 'insect_attack') store.applyInsectAttack()
+                const duration = type === 'rain' ? RAIN_DURATION : INSECT_DISPLAY
                 activeEvent.value = type
-                startCountdown(type === 'rain' ? RAIN_DURATION : INSECT_DISPLAY)
+                store.savedActiveEvent = type
+                store.savedEventExpiry = Date.now() + duration * 1000
+                startCountdown(duration)
             }, delay)
         }
         dayTimer = setTimeout(() => scheduleDayEvents(), DAY_DURATION * 1000)
@@ -64,7 +81,7 @@ export function setupEventLogic(store: ReturnType<typeof useCounterStore>) {
         if (pesticideInterval) clearInterval(pesticideInterval)
     }
 
-    return { startCountdown, scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPesticideTimer, stopPesticideTimer }
+    return { restoreEvent, scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPesticideTimer, stopPesticideTimer }
 }
 
 export function cleanupEventLogic() {

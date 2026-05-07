@@ -26,7 +26,7 @@ const store = useCounterStore();
 
 setupAchievementWatchers(store);
 
-const { scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPesticideTimer, stopPesticideTimer } = setupEventLogic(store);
+const { restoreEvent, scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPesticideTimer, stopPesticideTimer } = setupEventLogic(store);
 
 const { shopItems } = useShop(store);
 
@@ -60,7 +60,8 @@ let handleBeforeUnload: (() => void) | null = null;
 
 onMounted(() => {
   store.loadGame();
-  
+  restoreEvent();
+
   const now = Date.now();
   const lastSessionTime = store.lastSessionTime;
   if (lastSessionTime > 0) {
