@@ -252,4 +252,10 @@ onUnmounted(() => {
   min-width: 1px;
   max-width: calc(var(--width, 0) * 1%);
 }
+@media (min-width: 320px) and (max-width: 680px)
+{
+  .field img{
+    width: 2rem; height: 2rem;
+  }
+}
 </style>
