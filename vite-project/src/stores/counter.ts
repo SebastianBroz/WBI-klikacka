@@ -12,14 +12,16 @@ export const useCounterStore = defineStore("counter", {
             count: 0,
             achievements: [] as Achievement[],
             recentGains: [] as { time: number; amount: number }[],
+            fertilizerLevel: 0,
         };
     },
     actions: {
         increment(val = 0) {
-            this.count += val;
-            if (val > 0) {
+            const amount = val * Math.pow(3, this.fertilizerLevel);
+            this.count += amount;
+            if (amount > 0) {
                 const now = Date.now();
-                this.recentGains.push({ time: now, amount: val });
+                this.recentGains.push({ time: now, amount });
                 this.recentGains = this.recentGains.filter(g => now - g.time < 30000);
             }
         },
@@ -34,11 +36,17 @@ export const useCounterStore = defineStore("counter", {
             const recentTotal = this.recentGains
                 .filter(g => now - g.time < 30000)
                 .reduce((sum, g) => sum + g.amount, 0);
-            const deduction = Math.floor(recentTotal * 0.3);
-            this.count = Math.max(0, this.count - deduction);
+            this.count = Math.max(0, this.count - Math.floor(recentTotal * 0.3));
+        },
+        buyFertilizer() {
+            if (this.count >= this.fertilizerCost) {
+                this.count -= this.fertilizerCost;
+                this.fertilizerLevel++;
+            }
         },
     },
     getters: {
         doubleCount: (state) => state.count * 2,
+        fertilizerCost: (state) => Math.floor(50 * Math.pow(50, state.fertilizerLevel)),
     }
 });

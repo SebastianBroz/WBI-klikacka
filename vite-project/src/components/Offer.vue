@@ -4,9 +4,12 @@ import { selectedPlant } from '../composables/usePlant'
 const props = defineProps<{
   title: string,
   description: string,
-  img: string
-
+  img: string,
+  cost: number,
+  canAfford: boolean,
 }>();
+
+const emit = defineEmits<{ buy: [] }>();
 </script>
 
 <template>
@@ -14,12 +17,12 @@ const props = defineProps<{
     <img :src=props.img>
     <div class="offerDesc">
       <p>{{ title }}</p>
-      <p>{{description}}</p>
-      <div class="purchaseBtn">
+      <p>{{ description }}</p>
+      <div class="purchaseBtn" :class="{ disabled: !canAfford }" @click="canAfford && emit('buy')">
         <img v-if="selectedPlant === 'trees'" src="/pics/tree_grown.png">
         <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png">
         <img v-if="selectedPlant === 'potatoes'" src="/pics/potato_grown.png">
-        <p>--var</p>
+        <p>{{ cost }}</p>
       </div>
     </div>
   </li>
@@ -73,5 +76,10 @@ img{
 }
 .purchaseBtn:hover {
   background-color: #00c88b;
+}
+.purchaseBtn.disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 </style>

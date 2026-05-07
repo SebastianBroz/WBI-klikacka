@@ -144,12 +144,14 @@ onUnmounted(() => {
               </div>
               <!-- Conditional rendering based on currentSection -->
               <ul v-if="currentSection === 'shopOffers'" class="shopOffers">
-                <Offer  
-                  v-for="n in 5" 
-                  :key="n" 
-                  title="title" 
-                  description="desc" 
-                  img="/pics/achievement_forest_ending.png" />
+                <Offer
+                  title="Fertilizer"
+                  description="Triples crop yield per harvest. Price multiplies by 50 each purchase."
+                  img="/placeholder.jpeg"
+                  :cost="store.fertilizerCost"
+                  :canAfford="store.count >= store.fertilizerCost"
+                  @buy="store.buyFertilizer()"
+                />
               </ul>
               <ul v-if="currentSection === 'perksList'" class="perksList">
                 <Perk 
