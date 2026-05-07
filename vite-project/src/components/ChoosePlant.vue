@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { selectedPlant, isChoosingPlant } from '../composables/usePlant'
+import { savePlantSelection } from '../composables/usePlant'
 
 const selectPlant = (plant: string) => {
-  selectedPlant.value = plant
-  isChoosingPlant.value = false
+  savePlantSelection(plant)
 }
 </script>
 

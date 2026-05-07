@@ -16,7 +16,7 @@ import Ending from './components/Ending.vue';
 import { useCounterStore } from "./stores/counter.ts"
 import Audio from "./components/Audio.vue"
 import CustomCursor from "./components/CustomCursor.vue"
-import { selectedPlant, isChoosingPlant } from './composables/usePlant'
+import { selectedPlant, isChoosingPlant, resetPlantSelection } from './composables/usePlant'
 import { activeEvent } from './composables/useEvents'
 import { setupAchievementWatchers } from './composables/useAchievements'
 import { setupEventLogic, cleanupEventLogic } from './composables/useEventLogic'
@@ -32,9 +32,25 @@ const { shopItems } = useShop(store);
 
 const currentSection = ref('shopOffers');
 const endingDismissed = ref(false);
+const showResetConfirm = ref(false);
 
 const changeSection = (section: string) => {
   currentSection.value = section;
+};
+
+const resetGame = () => {
+  showResetConfirm.value = true;
+};
+
+const confirmReset = () => {
+  showResetConfirm.value = false;
+  store.resetGame();
+  resetPlantSelection();
+  endingDismissed.value = false;
+};
+
+const cancelReset = () => {
+  showResetConfirm.value = false;
 };
 
 let autoSaveInterval: ReturnType<typeof setInterval> | null = null;
@@ -178,11 +194,26 @@ onUnmounted(() => {
                   </ul>
                 </div>
               </Transition>
+              <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
             </section>
             <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
           </section>
         </main>
   </div>
+
+  <Transition name="reset-modal">
+    <div v-if="showResetConfirm" class="reset-overlay" @click.self="cancelReset">
+      <div class="reset-modal">
+        <div class="reset-modal-icon">&#9888;</div>
+        <h2 class="reset-modal-title">Start Over?</h2>
+        <p class="reset-modal-body">All your progress, upgrades and achievements will be permanently lost!</p>
+        <div class="reset-modal-actions">
+          <button class="reset-modal-cancel" @click="cancelReset">Cancel</button>
+          <button class="reset-modal-confirm" @click="confirmReset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style>
@@ -424,6 +455,135 @@ main {
 .optionsPanel {
   min-height: 12rem;
 }
+.resetBtn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  letter-spacing: inherit;
+  background-size: cover;
+  color: #ffaaaa;
+  background: linear-gradient(180deg, #5c2800 0%, #3a1500 100%);
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(139, 32, 0, 0.4);
+}
+.resetBtn:hover {
+  color: #ffffff;
+  background: linear-gradient(180deg, #6e3100 0%, #4a1c00 100%);
+  box-shadow: 0 0 10px rgba(255, 80, 0, 0.55), 0 2px 6px rgba(139, 32, 0, 0.4);
+}
+.resetBtn:active {
+  background: linear-gradient(180deg, #7a1000 0%, #4a0000 100%);
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+/* ── Reset confirmation modal ─────────────────────────── */
+.reset-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 8, 0, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.reset-modal {
+  background: linear-gradient(160deg, #3d1a00 0%, #280d00 60%, #1a0800 100%);
+  border: 3px solid #8b2000;
+  border-radius: 0.75rem;
+  padding: 2rem 2.5rem;
+  max-width: 22rem;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px #601700;
+  text-align: center;
+}
+.reset-modal-icon {
+  font-size: 3rem;
+  line-height: 1;
+  color: #ff9040;
+  filter: drop-shadow(0 0 8px rgba(255, 120, 0, 0.6));
+}
+.reset-modal-title {
+  font-size: 1.8rem;
+  color: #f7e0c8;
+  margin: 0;
+}
+.reset-modal-body {
+  font-size: 1.05rem;
+  color: #c8a88a;
+  line-height: 1.5;
+}
+.reset-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.reset-modal-cancel,
+.reset-modal-confirm {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 1.1rem;
+  font-family: inherit;
+  letter-spacing: inherit;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+  border: 2px solid #601700;
+}
+.reset-modal-cancel {
+  background: linear-gradient(180deg, #5c2800 0%, #3a1500 100%);
+  color: #e0d0c1;
+}
+.reset-modal-cancel:hover {
+  background: linear-gradient(180deg, #6e3100 0%, #4a1c00 100%);
+  box-shadow: 0 0 8px rgba(224, 208, 193, 0.25);
+}
+.reset-modal-confirm {
+  background: linear-gradient(180deg, #7a1000 0%, #4a0000 100%);
+  color: #ff9090;
+  border-color: #8b2000;
+  box-shadow: 0 0 6px rgba(255, 80, 0, 0.3);
+}
+.reset-modal-confirm:hover {
+  background: linear-gradient(180deg, #9a1500 0%, #620000 100%);
+  color: #ff5555;
+  box-shadow: 0 0 12px rgba(255, 80, 0, 0.6);
+}
+.reset-modal-cancel:active,
+.reset-modal-confirm:active {
+  opacity: 0.8;
+}
+
+/* modal enter/leave */
+.reset-modal-enter-active,
+.reset-modal-leave-active {
+  transition: opacity 0.25s ease;
+}
+.reset-modal-enter-active .reset-modal,
+.reset-modal-leave-active .reset-modal {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+.reset-modal-enter-from,
+.reset-modal-leave-to {
+  opacity: 0;
+}
+.reset-modal-enter-from .reset-modal {
+  transform: scale(0.8) translateY(1.5rem);
+}
+.reset-modal-leave-to .reset-modal {
+  transform: scale(0.9) translateY(0.5rem);
+  opacity: 0;
+}
 .options-switch-enter-active,
 .options-switch-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -466,6 +626,25 @@ main {
   list-style: none;
   background-image: url('/pics/wooden_planks.png');
   background-size: cover;
+}
+@media (max-width: 480px) {
+  .reset-modal {
+    padding: 1.5rem 1.25rem;
+  }
+  .reset-modal-icon {
+    font-size: 2.25rem;
+  }
+  .reset-modal-title {
+    font-size: 1.4rem;
+  }
+  .reset-modal-body {
+    font-size: 0.9rem;
+  }
+  .reset-modal-cancel,
+  .reset-modal-confirm {
+    font-size: 0.95rem;
+    padding: 0.5rem 0.6rem;
+  }
 }
 @media (min-width: 320px) and (max-width: 768px) {
   .container{

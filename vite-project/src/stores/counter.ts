@@ -118,6 +118,23 @@ export const useCounterStore = defineStore("counter", {
 
             return totalGains;
         },
+        resetGame() {
+            // Resetuj všechny hodnoty na výchozí
+            this.count = 0;
+            this.achievements = [];
+            this.newAchievements = [];
+            this.recentGains = [];
+            this.fertilizerLevel = 0;
+            this.pesticideLevel = 0;
+            this.pesticideExpiry = 0;
+            this.bigCursorPerkOwned = false;
+            this.perkDropActive = false;
+            this.lastSessionTime = 0;
+
+            // Vymaž všechny uložené údaje
+            localStorage.removeItem('wbi-klikacka-save');
+            localStorage.removeItem('wbi-klikacka-plant');
+        },
     },
     getters: {
         doubleCount: (state) => state.count * 2,
