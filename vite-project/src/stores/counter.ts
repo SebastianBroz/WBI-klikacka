@@ -11,6 +11,7 @@ export const useCounterStore = defineStore("counter", {
         return {
             count: 0,
             achievements: [] as Achievement[],
+            newAchievements: [] as Achievement[],
             recentGains: [] as { time: number; amount: number }[],
             fertilizerLevel: 0,
             pesticideLevel: 0,
@@ -34,6 +35,11 @@ export const useCounterStore = defineStore("counter", {
             const alreadyUnlocked = this.achievements.some(a => a.title === achievement.title);
             if (!alreadyUnlocked) {
                 this.achievements.push(achievement);
+                this.newAchievements.push(achievement);
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    this.newAchievements = this.newAchievements.filter(a => a.title !== achievement.title);
+                }, 5000);
             }
         },
         applyInsectAttack() {

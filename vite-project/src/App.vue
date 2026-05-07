@@ -6,7 +6,7 @@ https://claude.ai/share/fd8cab84-7071-4043-ae01-7f617112934a
 -->
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import ChoosePlant from './components/ChoosePlant.vue';
 import Field from './components/Field.vue';
 import Offer from './components/Offer.vue';
@@ -17,9 +17,18 @@ import { useCounterStore } from "./stores/counter.ts"
 import Audio from "./components/Audio.vue"
 import CustomCursor from "./components/CustomCursor.vue"
 import { selectedPlant, isChoosingPlant } from './composables/usePlant'
-import { activeEvent, eventTimeRemaining } from './composables/useEvents'
+import { activeEvent } from './composables/useEvents'
+import { setupAchievementWatchers } from './composables/useAchievements'
+import { setupEventLogic, cleanupEventLogic } from './composables/useEventLogic'
+import { useShop } from './composables/useShop'
 
 const store = useCounterStore();
+
+setupAchievementWatchers(store);
+
+const { scheduleDayEvents, countdownDisplay, pesticideTimeRemaining, startPesticideTimer, stopPesticideTimer } = setupEventLogic(store);
+
+const { shopItems } = useShop(store);
 
 const currentSection = ref('shopOffers');
 const endingDismissed = ref(false);
@@ -28,162 +37,32 @@ const changeSection = (section: string) => {
   currentSection.value = section;
 };
 
-const endingAchievements: Record<string, { title: string; description: string; img: string }> = {
-  trees: {
-    title: 'Forest Ending',
-    description: 'You filled the planet with trees and saved humanity from extinction!',
-    img: '/pics/achievement_forest_ending.png',
-  },
-  mushrooms: {
-    title: 'Zombie Ending',
-    description: 'The mycelium consumed all life on Earth. All intelligent life ceased to exist.',
-    img: '/pics/achievement_mushroom_ending.png',
-  },
-  potatoes: {
-    title: 'Potato Ending',
-    description: 'You ended world hunger and buried the planet in potatoes. Congrats, I guess.',
-    img: '/pics/achievement_potato_ending.png',
-  },
-};
-
-const cropMilestoneAchievements: Record<string, { title: string; description: string; img?: string }> = {
-  trees: {
-    title: 'Arboreal Giant',
-    description: 'Harvested 10,000 trees. The forest is flourishing!',
-  },
-  mushrooms: {
-    title: 'Mycelium Master',
-    description: 'Harvested 10,000 mushrooms. The fungal empire grows strong!',
-  },
-  potatoes: {
-    title: 'Potato Tycoon',
-    description: 'Harvested 10,000 potatoes. You are the king of tubers!',
-  },
-};
-
-const pesticideMilestoneAchievement = {
-  title: 'Bug Killing Professional',
-  description: 'Purchased pesticides five times. Your crops are well defended!',
-};
-
-const pesticideInvestorAchievement = {
-  title: 'Long Term Investor',
-  description: 'Purchased pesticides fifteen times. You are investing heavily in crop protection!',
-};
-
-const fertilizerMilestoneAchievement = {
-  title: 'Getting Ready For Take Off!',
-  description: 'Purchased fertilizers three times. Your yields are multiplying exponentially!',
-};
-
-const fertilizerMasterAchievement = {
-  title: 'TO THE MOON!',
-  description: 'Purchased fertilizers ten times. Your crops are supercharged!',
-};
-
-watch(() => store.count, (count) => {
-  if (count >= 10) {
-    const achievement = endingAchievements[selectedPlant.value];
-    if (achievement) {
-      store.addAchievement(achievement);
-    }
-  }
-  if (count >= 10000) {
-    const milestoneAchievement = cropMilestoneAchievements[selectedPlant.value];
-    if (milestoneAchievement) {
-      store.addAchievement(milestoneAchievement);
-    }
-  }
-});
-
-watch(() => store.pesticideLevel, (level) => {
-  if (level >= 5) {
-    store.addAchievement(pesticideMilestoneAchievement);
-  }
-    if (level >= 15) {
-    store.addAchievement(pesticideInvestorAchievement);
-  }
-});
-
-watch(() => store.fertilizerLevel, (level) => {
-  if (level >= 3) {
-    store.addAchievement(fertilizerMilestoneAchievement);
-  }
-  if (level >= 10) {
-    store.addAchievement(fertilizerMasterAchievement);
-  }
-});
-
-const DAY_DURATION   = 1  // should be 14400 seconds
-const RAIN_DURATION  = 30 // should be 360 seconds
-const INSECT_DISPLAY = 30   // should be 360 seconds
-
-let dayTimer: ReturnType<typeof setTimeout> | null = null
-let eventTimer: ReturnType<typeof setTimeout> | null = null
-let countdownInterval: ReturnType<typeof setInterval> | null = null
-let pesticideInterval: ReturnType<typeof setInterval> | null = null
-
-const pesticideTick = ref(Date.now())
-const pesticideTimeRemaining = computed(() => {
-  const remaining = store.pesticideExpiry - pesticideTick.value
-  if (remaining <= 0) return null
-  const s = Math.ceil(remaining / 1000)
-  const h = Math.floor(s / 3600)
-  const m = Math.floor((s % 3600) / 60)
-  const sec = s % 60
-  return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-})
-
-const startCountdown = (seconds: number) => {
-  eventTimeRemaining.value = seconds
-  if (countdownInterval) clearInterval(countdownInterval)
-  countdownInterval = setInterval(() => {
-    eventTimeRemaining.value--
-    if (eventTimeRemaining.value <= 0) {
-      activeEvent.value = null
-      clearInterval(countdownInterval!)
-    }
-  }, 1000)
-}
-
-const scheduleDayEvents = () => {
-  if (Math.random() < 0.5) {
-    const delay = Math.floor(Math.random() * DAY_DURATION * 1000)
-    const type = Math.random() < 0.5 ? 'rain' : 'insect_attack'
-    eventTimer = setTimeout(() => {
-      if (activeEvent.value !== null) return
-      if (type === 'insect_attack' && Date.now() < store.pesticideExpiry) return
-      if (type === 'insect_attack') store.applyInsectAttack()
-      activeEvent.value = type
-      startCountdown(type === 'rain' ? RAIN_DURATION : INSECT_DISPLAY)
-    }, delay)
-  }
-  dayTimer = setTimeout(() => scheduleDayEvents(), DAY_DURATION * 1000)
-}
-
-const countdownDisplay = computed(() => {
-  const s = eventTimeRemaining.value
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
-})
-
 onMounted(() => {
   scheduleDayEvents()
-  pesticideInterval = setInterval(() => { pesticideTick.value = Date.now() }, 1000)
+  startPesticideTimer()
 })
 onUnmounted(() => {
-  if (dayTimer) clearTimeout(dayTimer)
-  if (eventTimer) clearTimeout(eventTimer)
-  if (countdownInterval) clearInterval(countdownInterval)
-  if (pesticideInterval) clearInterval(pesticideInterval)
+  cleanupEventLogic()
+  stopPesticideTimer()
 })
 </script>
 
 <template>
   <CustomCursor />
+  <TransitionGroup name="achievement-popup" tag="div" class="achievement-popups">
+    <div v-for="achievement in store.newAchievements" :key="achievement.title" class="achievement-popup">
+      <img :src="achievement.img" alt="achievement icon" />
+      <div class="achievement-text">
+        <h3>Achievement Unlocked!</h3>
+        <p>{{ achievement.title }}</p>
+        <small>{{ achievement.description }}</small>
+      </div>
+    </div>
+  </TransitionGroup>
   <div class="container">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
-      <Ending v-if="store.count >= 1000000000 && !endingDismissed" @close="endingDismissed = true"/>
+      <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
           <section class="stats">
             <Transition name="event-banner">
               <div class="buffOrNerf" v-if="activeEvent">
@@ -194,10 +73,12 @@ onUnmounted(() => {
                 <p class="countdown">{{ countdownDisplay }}</p>
               </div>
             </Transition>
-            <div class="pesticideTimer" v-if="pesticideTimeRemaining">
-              <img src="" style="pointer-events: none;">
-              <p>Pesticide: {{ pesticideTimeRemaining }}</p>
-            </div>
+            <Transition name="pesticide-timer">
+              <div class="pesticideTimer" v-if="pesticideTimeRemaining">
+                <img src="" style="pointer-events: none;">
+                <p>Pesticide: {{ pesticideTimeRemaining }}</p>
+              </div>
+            </Transition>
             <!--<div class="treesPerClick">
               <img src="/pics/clock_tpc.png" style="pointer-events: none;">
               <p>{{ selectedPlant.charAt(0).toUpperCase() + selectedPlant.slice(1) }} per click: {{ Math.round(store.fertilizerMultiplier) }}</p>
@@ -230,20 +111,14 @@ onUnmounted(() => {
                 <div :key="currentSection" class="optionsPanel">
                   <ul v-if="currentSection === 'shopOffers'" class="shopOffers">
                     <Offer
-                      title="Fertilizer"
-                      description="Triples crop yield per harvest. Price multiplies by 50 each purchase."
-                      img="/placeholder.jpeg"
-                      :cost="store.fertilizerCost"
-                      :canAfford="store.count >= store.fertilizerCost"
-                      @buy="store.buyFertilizer()"
-                    />
-                    <Offer
-                      title="Pesticides"
-                      description="Prevents insect attacks for 5 hours. Price multiplies by 3 each purchase."
-                      img="/placeholder.jpeg"
-                      :cost="store.pesticideCost"
-                      :canAfford="store.count >= store.pesticideCost"
-                      @buy="store.buyPesticide()"
+                      v-for="item in shopItems"
+                      :key="item.title"
+                      :title="item.title"
+                      :description="item.description"
+                      :img="item.img"
+                      :cost="item.cost"
+                      :canAfford="item.canAfford"
+                      @buy="item.buy"
                     />
                   </ul>
                   <ul v-else-if="currentSection === 'perksList'" class="perksList">
@@ -354,6 +229,20 @@ main {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+.pesticide-timer-enter-active,
+.pesticide-timer-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.pesticide-timer-enter-from,
+.pesticide-timer-leave-to {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+.pesticide-timer-enter-to,
+.pesticide-timer-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 .buffOrNerf{
   background-image: url(/pics/golden_bg.png);
@@ -612,5 +501,63 @@ main {
     padding-inline: 2rem;
     gap: 2rem;
   }
+}
+.achievement-popups {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.achievement-popup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #601700;
+  color: #f7f9f9;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  max-width: 20rem;
+  border: 2px solid #a76d60;
+}
+.achievement-popup img {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+}
+.achievement-text h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #ffd700;
+}
+.achievement-text p {
+  margin: 0.25rem 0 0 0;
+  font-weight: bold;
+}
+.achievement-text small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #e0d0c1;
+}
+.achievement-popup-enter-active,
+.achievement-popup-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.achievement-popup-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.achievement-popup-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.achievement-popup-enter-to,
+.achievement-popup-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 </style>
