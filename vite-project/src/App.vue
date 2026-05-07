@@ -117,7 +117,7 @@ onUnmounted(() => {
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
       <Transition name="ending-popup">
-        <Ending v-if="store.count >= 10 && !store.endingDismissed" @close="store.endingDismissed = true"/>
+        <Ending v-if="store.count >= 1000000000 && !store.endingDismissed" @close="store.endingDismissed = true"/>
       </Transition>
           <section class="stats">
             <Transition name="event-banner">

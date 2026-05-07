@@ -23,7 +23,7 @@ const collectibleTimers = new Map<number, ReturnType<typeof setTimeout>[]>();
 let perkFlashTimer: ReturnType<typeof setTimeout> | null = null;
 let perkRemoveTimer: ReturnType<typeof setTimeout> | null = null;
 
-const PERK_DROP_CHANCE = import.meta.env.DEV ? 1.0 : 0.005;
+const PERK_DROP_CHANCE = 0.005; // 0.5% chance
 
 const growthStage = computed(() => {
   if (progress.value < 33) return 'sapling'
@@ -73,7 +73,7 @@ const removeCollectible = (id: number) => {
 
 const collectibleDrop = () => {
   const chance = Math.trunc(Math.random() * 100)
-  if (chance < 100) // mělo by být 5 místo 100
+  if (chance < 5)
   {
     const id = nextId++
     collectibles.value.push({ id, x: 10 + Math.random() * 70, y: 10 + Math.random() * 70, flashing: false })

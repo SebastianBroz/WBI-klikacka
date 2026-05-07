@@ -2,9 +2,9 @@ import { ref, computed } from 'vue'
 import type { useCounterStore } from '../stores/counter'
 import { activeEvent, eventTimeRemaining } from './useEvents'
 
-const DAY_DURATION = 1  // seconds
-const RAIN_DURATION = 30   // seconds
-const INSECT_DISPLAY = 30   // seconds (deduction is instant, display lingers)
+const DAY_DURATION = 360  // seconds
+const RAIN_DURATION = 360   // seconds
+const INSECT_DISPLAY = 360   // seconds (deduction is instant, display lingers)
 
 let dayTimer: ReturnType<typeof setTimeout> | null = null
 let eventTimer: ReturnType<typeof setTimeout> | null = null
