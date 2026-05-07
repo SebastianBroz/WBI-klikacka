@@ -13,6 +13,8 @@ export const useCounterStore = defineStore("counter", {
             achievements: [] as Achievement[],
             recentGains: [] as { time: number; amount: number }[],
             fertilizerLevel: 0,
+            pesticideLevel: 0,
+            pesticideExpiry: 0,
         };
     },
     actions: {
@@ -44,9 +46,17 @@ export const useCounterStore = defineStore("counter", {
                 this.fertilizerLevel++;
             }
         },
+        buyPesticide() {
+            if (this.count >= this.pesticideCost) {
+                this.count -= this.pesticideCost;
+                this.pesticideExpiry = Date.now() + 5 * 3600 * 1000;
+                this.pesticideLevel++;
+            }
+        },
     },
     getters: {
         doubleCount: (state) => state.count * 2,
         fertilizerCost: (state) => Math.floor(50 * Math.pow(50, state.fertilizerLevel)),
+        pesticideCost: (state) => Math.floor(300 * Math.pow(3, state.pesticideLevel)),
     }
 });

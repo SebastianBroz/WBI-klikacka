@@ -61,6 +61,18 @@ const INSECT_DISPLAY = 30   // seconds (deduction is instant, display lingers)
 let dayTimer: ReturnType<typeof setTimeout> | null = null
 let eventTimer: ReturnType<typeof setTimeout> | null = null
 let countdownInterval: ReturnType<typeof setInterval> | null = null
+let pesticideInterval: ReturnType<typeof setInterval> | null = null
+
+const pesticideTick = ref(Date.now())
+const pesticideTimeRemaining = computed(() => {
+  const remaining = store.pesticideExpiry - pesticideTick.value
+  if (remaining <= 0) return null
+  const s = Math.ceil(remaining / 1000)
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+})
 
 const startCountdown = (seconds: number) => {
   eventTimeRemaining.value = seconds
@@ -80,6 +92,7 @@ const scheduleDayEvents = () => {
     const type = Math.random() < 0.5 ? 'rain' : 'insect_attack'
     eventTimer = setTimeout(() => {
       if (activeEvent.value !== null) return
+      if (type === 'insect_attack' && Date.now() < store.pesticideExpiry) return
       if (type === 'insect_attack') store.applyInsectAttack()
       activeEvent.value = type
       startCountdown(type === 'rain' ? RAIN_DURATION : INSECT_DISPLAY)
@@ -93,11 +106,15 @@ const countdownDisplay = computed(() => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 })
 
-onMounted(() => scheduleDayEvents())
+onMounted(() => {
+  scheduleDayEvents()
+  pesticideInterval = setInterval(() => { pesticideTick.value = Date.now() }, 1000)
+})
 onUnmounted(() => {
   if (dayTimer) clearTimeout(dayTimer)
   if (eventTimer) clearTimeout(eventTimer)
   if (countdownInterval) clearInterval(countdownInterval)
+  if (pesticideInterval) clearInterval(pesticideInterval)
 })
 </script>
 
@@ -113,6 +130,10 @@ onUnmounted(() => {
                 <p>{{ activeEvent === 'rain' ? 'Rainstorm' : 'Insect Attack' }}</p>
               </div>
               <p class="countdown">{{ countdownDisplay }}</p>
+            </div>
+            <div class="pesticideTimer" v-if="pesticideTimeRemaining">
+              <img src="" style="pointer-events: none;">
+              <p>Pesticide: {{ pesticideTimeRemaining }}</p>
             </div>
             <div class="treesPerClick">
               <img src="/pics/clock_tpc.png" style="pointer-events: none;">
@@ -151,6 +172,14 @@ onUnmounted(() => {
                   :cost="store.fertilizerCost"
                   :canAfford="store.count >= store.fertilizerCost"
                   @buy="store.buyFertilizer()"
+                />
+                <Offer
+                  title="Pesticides"
+                  description="Prevents insect attacks for 5 hours. Price multiplies by 3 each purchase."
+                  img="/placeholder.jpeg"
+                  :cost="store.pesticideCost"
+                  :canAfford="store.count >= store.pesticideCost"
+                  @buy="store.buyPesticide()"
                 />
               </ul>
               <ul v-if="currentSection === 'perksList'" class="perksList">
@@ -275,6 +304,22 @@ main {
   width: 100%;
 }
 .currencyCount img {
+  height: 2rem;
+}
+.pesticideTimer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2em;
+  padding: 0.4rem 1rem;
+  background-color: #4a7c3f;
+  color: #f7f9f9;
+  border-radius: 2rem;
+  max-width: 50rem;
+  width: 100%;
+}
+.pesticideTimer img {
   height: 2rem;
 }
 .treesPerClick {
@@ -410,6 +455,10 @@ footer {
     height: 3rem;
   }
   .currencyCount, .timePerClick {
+    font-size: 0.75em;
+    padding: 0.25rem 0.5rem;
+  }
+  .pesticideTimer {
     font-size: 0.75em;
     padding: 0.25rem 0.5rem;
   }
