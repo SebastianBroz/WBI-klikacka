@@ -7,13 +7,15 @@ const props = defineProps<{
 </script>
 
 <template>
-  <li class="achievement">
+  <Transition name="achievement-item">
+    <li class="achievement">
     <img v-if="props.img" :src="props.img">
     <div class="achievmentDesc">
       <p>{{title}}</p>
       <p>{{description}}</p>
     </div>
   </li>
+  </Transition>
 </template>
 
 <style scoped>
@@ -43,5 +45,19 @@ img{
 .achievement p:nth-child(2) {
   font-size: 1.2rem;
   font-weight: bold;
+}
+.achievement-item-enter-active,
+.achievement-item-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.achievement-item-enter-from,
+.achievement-item-leave-to {
+  opacity: 0;
+  transform: translateX(-1rem);
+}
+.achievement-item-enter-to,
+.achievement-item-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 </style>

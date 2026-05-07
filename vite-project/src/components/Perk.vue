@@ -19,18 +19,21 @@ const emit = defineEmits<{ buy: [] }>()
     <div class="perkDesc">
       <p>{{ title }}</p>
       <p>{{ description }}</p>
-      <div v-if="owned" class="ownedBadge">✓ OWNED</div>
-      <div
-        v-else-if="cost !== undefined"
-        class="buyBtn"
-        :class="{ disabled: !canAfford }"
-        @click="canAfford && emit('buy')"
-      >
-        <img v-if="selectedPlant === 'trees'"     src="/pics/tree_grown.png">
-        <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png">
-        <img v-if="selectedPlant === 'potatoes'"  src="/pics/potato_grown.png">
-        <p>{{ cost }}</p>
-      </div>
+      <Transition name="owned-badge" mode="out-in">
+        <div v-if="owned" key="owned" class="ownedBadge">✓ OWNED</div>
+        <div
+          v-else-if="cost !== undefined"
+          key="buy"
+          class="buyBtn"
+          :class="{ disabled: !canAfford }"
+          @click="canAfford && emit('buy')"
+        >
+          <img v-if="selectedPlant === 'trees'"     src="/pics/tree_grown.png">
+          <img v-if="selectedPlant === 'mushrooms'" src="/pics/mushroom_grown.png">
+          <img v-if="selectedPlant === 'potatoes'"  src="/pics/potato_grown.png">
+          <p>{{ cost }}</p>
+        </div>
+      </Transition>
     </div>
   </li>
 </template>
@@ -107,5 +110,19 @@ img {
 }
 .perk.owned {
   background-color: rgba(255, 215, 0, 0.08);
+}
+.owned-badge-enter-active,
+.owned-badge-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.owned-badge-enter-from,
+.owned-badge-leave-to {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+.owned-badge-enter-to,
+.owned-badge-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
