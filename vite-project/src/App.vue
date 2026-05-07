@@ -308,18 +308,21 @@ h1, h2, h3, h4, h5, h6 {
 p, img, button {
   user-select: none;
 }
-template{
-  height: 100vh;
+html, body, #app {
+  min-height: 100vh;
+}
+template {
+  height: 100%;
 }
 .container {
   font-family: "Jersey 10", sans-serif;
   letter-spacing: 10%;
   max-width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #e0d0c1;
   background-image: url(/pics/sky_bg.png);
   background-size: cover;
-  padding-block: 0.75rem;
+  padding-top: 2.5rem;
 }
 img {
   height: 4rem;
@@ -328,6 +331,7 @@ main {
   display: flex;
   gap: 4rem;
   padding-inline: 3rem;
+  align-items: flex-start;
 }
 .stats {
   display: flex;
@@ -336,7 +340,7 @@ main {
   align-items: center;
   gap: 1rem;
   width: 100%;
-  height: 100vh;
+  min-height: 0;
 }
 .event-banner-enter-active {
   animation: eventSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -447,8 +451,11 @@ main {
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+}
+.optionsAndLogo img:last-child {
+  margin-top: 2rem;
 }
 ::-webkit-scrollbar
 {
