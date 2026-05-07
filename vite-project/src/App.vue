@@ -62,7 +62,9 @@ onUnmounted(() => {
   <div class="container">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
-      <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
+      <Transition name="ending-popup">
+        <Ending v-if="store.count >= 10 && !endingDismissed" @close="endingDismissed = true"/>
+      </Transition>
           <section class="stats">
             <Transition name="event-banner">
               <div class="buffOrNerf" v-if="activeEvent">
@@ -559,5 +561,19 @@ main {
 .achievement-popup-leave-from {
   opacity: 1;
   transform: translateX(0);
+}
+.ending-popup-enter-active,
+.ending-popup-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.ending-popup-enter-from,
+.ending-popup-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+.ending-popup-enter-to,
+.ending-popup-leave-from {
+  opacity: 1;
+  transform: scale(1);
 }
 </style>
