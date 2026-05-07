@@ -110,6 +110,7 @@ img {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.25rem 0.5rem;
   background-color: #00a676;

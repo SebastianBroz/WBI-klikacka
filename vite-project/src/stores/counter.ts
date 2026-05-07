@@ -15,6 +15,7 @@ export const useCounterStore = defineStore("counter", {
             fertilizerLevel: 0,
             pesticideLevel: 0,
             pesticideExpiry: 0,
+            bigCursorPerkOwned: false,
         };
     },
     actions: {
@@ -56,6 +57,12 @@ export const useCounterStore = defineStore("counter", {
                 this.count -= cost;
                 this.pesticideExpiry = Date.now() + 5 * 3600 * 1000;
                 this.pesticideLevel = level + 1;
+            }
+        },
+        buyCursorPerk() {
+            if (!this.bigCursorPerkOwned && this.count >= 500) {
+                this.count -= 500;
+                this.bigCursorPerkOwned = true;
             }
         },
     },

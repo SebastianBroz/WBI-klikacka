@@ -15,6 +15,7 @@ import Achievement from './components/Achievement.vue'
 import Ending from './components/Ending.vue';
 import { useCounterStore } from "./stores/counter.ts"
 import Audio from "./components/Audio.vue"
+import CustomCursor from "./components/CustomCursor.vue"
 import { selectedPlant, isChoosingPlant } from './composables/usePlant'
 import { activeEvent, eventTimeRemaining } from './composables/useEvents'
 
@@ -178,6 +179,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <CustomCursor />
   <div class="container">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
@@ -196,10 +198,10 @@ onUnmounted(() => {
               <img src="" style="pointer-events: none;">
               <p>Pesticide: {{ pesticideTimeRemaining }}</p>
             </div>
-            <div class="treesPerClick">
+            <!--<div class="treesPerClick">
               <img src="/pics/clock_tpc.png" style="pointer-events: none;">
               <p>{{ selectedPlant.charAt(0).toUpperCase() + selectedPlant.slice(1) }} per click: {{ Math.round(store.fertilizerMultiplier) }}</p>
-            </div>
+            </div>-->
             <div class="currencyCount">
               <img src="/pics/tree_grown.png" v-if="selectedPlant === 'trees'" style="pointer-events: none;">
               <img src="/pics/mushroom_grown.png" v-if="selectedPlant === 'mushrooms'" style="pointer-events: none;">
@@ -244,12 +246,15 @@ onUnmounted(() => {
                 />
               </ul>
               <ul v-if="currentSection === 'perksList'" class="perksList">
-                <Perk 
-                  v-for="n in 5" 
-                  :key="n" 
-                  title="title" 
-                  description="desc" 
-                  img="/pics/perk_rainstorm.png"  />
+                <Perk
+                  title="Titan's Touch"
+                  description="Your clicks shake the earth. The radial effect becomes massive."
+                  img="/pics/perk_rainstorm.png"
+                  :cost="500"
+                  :canAfford="store.count >= 500"
+                  :owned="store.bigCursorPerkOwned"
+                  @buy="store.buyCursorPerk()"
+                />
               </ul>
               <ul v-if="currentSection === 'achievements'" class="achievementsList">
                 <Achievement
@@ -301,7 +306,7 @@ p, img, button {
   user-select: none;
 }
 template{
-  height: 100%;
+  height: 100vh;
 }
 .container {
   font-family: "Jersey 10", sans-serif;
@@ -509,13 +514,6 @@ main {
   list-style: none;
   background-image: url('/pics/wooden_planks.png');
   background-size: cover;
-}
-footer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
 }
 @media (min-width: 320px) and (max-width: 768px) {
   .container{
