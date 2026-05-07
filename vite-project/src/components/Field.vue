@@ -6,11 +6,14 @@ import { useCounterStore } from "../stores/counter.ts"
 import SingleCollectible from './SingleCollectible.vue';
 
 interface Collectible { id: number; x: number; y: number; flashing: boolean }
+interface FloatNumber { id: number; value: number }
 
 const store = useCounterStore();
 const progress = ref(0);
 const collectibles = ref<Collectible[]>([]);
+const floatingNumbers = ref<FloatNumber[]>([]);
 let nextId = 0;
+let floatId = 0;
 const collectibleTimers = new Map<number, ReturnType<typeof setTimeout>[]>();
 
 const growthStage = computed(() => {
@@ -22,12 +25,23 @@ const growthStage = computed(() => {
 let gameInterval: ReturnType<typeof setInterval> | null = null;
 let progressInterval: ReturnType<typeof setInterval> | null = null;
 
+const spawnFloat = (value: number) => {
+  const id = floatId++
+  floatingNumbers.value.push({ id, value })
+  setTimeout(() => {
+    const idx = floatingNumbers.value.findIndex(f => f.id === id)
+    if (idx !== -1) floatingNumbers.value.splice(idx, 1)
+  }, 1200)
+}
+
 const startTimer = () => {
   const duration = isRainActive.value ? 5000 : 10000
   const progressStep = isRainActive.value ? 0.2 : 0.1
   if (gameInterval) clearInterval(gameInterval)
   gameInterval = setInterval(() => {
+    const gain = 1 * store.fertilizerMultiplier
     store.increment(1)
+    spawnFloat(gain)
     progress.value = 0
     startTimer()
   }, duration)
@@ -63,12 +77,16 @@ const collectibleDrop = () => {
 }
 
 const onCollect = (id: number) => {
+  const gain = 30 * store.fertilizerMultiplier
   store.increment(30)
+  spawnFloat(gain)
   removeCollectible(id)
 }
 
 const handleClick = () => {
+  const gain = 1 * store.fertilizerMultiplier
   store.increment(1)
+  spawnFloat(gain)
   startTimer()
   collectibleDrop()
 }
@@ -91,6 +109,11 @@ onUnmounted(() => {
     @collect="onCollect(c.id)"
   />
   <div class="field" @click="handleClick()">
+    <div
+      v-for="f in floatingNumbers"
+      :key="f.id"
+      class="floatNumber"
+    >+{{ Math.round(f.value) }}</div>
     <img v-if="selectedPlant === 'trees' && growthStage === 'sapling'" src="/pics/tree_sapling.png"  style="pointer-events: none;">
     <img v-if="selectedPlant === 'trees' && growthStage === 'middle'"  src="/pics/tree_middle.png"   style="pointer-events: none;">
     <img v-if="selectedPlant === 'trees' && growthStage === 'grown'"   src="/pics/tree_grown.png"    style="pointer-events: none;">
@@ -106,6 +129,7 @@ onUnmounted(() => {
 
 <style scoped>
 .field {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -115,6 +139,24 @@ onUnmounted(() => {
 .field img {
   height: 4rem;
   width: 4rem;
+}
+.floatNumber {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translateX(-50%);
+  color: #2aff2a;
+  font-size: 1rem;
+  font-weight: bold;
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+  animation: floatUp 1.2s ease-out forwards;
+  z-index: 10;
+}
+@keyframes floatUp {
+  0%   { opacity: 1;   transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0;   transform: translateX(-50%) translateY(-2.5rem); }
 }
 .timeBar
 {

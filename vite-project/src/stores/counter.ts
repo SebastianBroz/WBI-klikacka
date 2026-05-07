@@ -19,7 +19,8 @@ export const useCounterStore = defineStore("counter", {
     },
     actions: {
         increment(val = 0) {
-            const amount = val * Math.pow(3, this.fertilizerLevel);
+            const level = Number(this.fertilizerLevel) || 0;
+            const amount = val * Math.pow(3, level);
             this.count += amount;
             if (amount > 0) {
                 const now = Date.now();
@@ -41,22 +42,36 @@ export const useCounterStore = defineStore("counter", {
             this.count = Math.max(0, this.count - Math.floor(recentTotal * 0.3));
         },
         buyFertilizer() {
-            if (this.count >= this.fertilizerCost) {
-                this.count -= this.fertilizerCost;
-                this.fertilizerLevel++;
+            const level = Number(this.fertilizerLevel) || 0;
+            const cost = Math.floor(50 * Math.pow(50, level));
+            if (this.count >= cost) {
+                this.count -= cost;
+                this.fertilizerLevel = level + 1;
             }
         },
         buyPesticide() {
-            if (this.count >= this.pesticideCost) {
-                this.count -= this.pesticideCost;
+            const level = Number(this.pesticideLevel) || 0;
+            const cost = Math.floor(300 * Math.pow(3, level));
+            if (this.count >= cost) {
+                this.count -= cost;
                 this.pesticideExpiry = Date.now() + 5 * 3600 * 1000;
-                this.pesticideLevel++;
+                this.pesticideLevel = level + 1;
             }
         },
     },
     getters: {
         doubleCount: (state) => state.count * 2,
-        fertilizerCost: (state) => Math.floor(50 * Math.pow(50, state.fertilizerLevel)),
-        pesticideCost: (state) => Math.floor(300 * Math.pow(3, state.pesticideLevel)),
+        fertilizerCost: (state) => {
+            const level = Number(state.fertilizerLevel) || 0;
+            return Math.floor(50 * Math.pow(50, level));
+        },
+        fertilizerMultiplier: (state) => {
+            const level = Number(state.fertilizerLevel) || 0;
+            return Math.pow(3, level);
+        },
+        pesticideCost: (state) => {
+            const level = Number(state.pesticideLevel) || 0;
+            return Math.floor(300 * Math.pow(3, level));
+        },
     }
 });
