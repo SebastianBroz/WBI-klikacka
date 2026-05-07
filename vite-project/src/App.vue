@@ -45,12 +45,71 @@ const endingAchievements: Record<string, { title: string; description: string; i
   },
 };
 
+const cropMilestoneAchievements: Record<string, { title: string; description: string; img?: string }> = {
+  trees: {
+    title: 'Arboreal Giant',
+    description: 'Harvested 10,000 trees. The forest is flourishing!',
+  },
+  mushrooms: {
+    title: 'Mycelium Master',
+    description: 'Harvested 10,000 mushrooms. The fungal empire grows strong!',
+  },
+  potatoes: {
+    title: 'Potato Tycoon',
+    description: 'Harvested 10,000 potatoes. You are the king of tubers!',
+  },
+};
+
+const pesticideMilestoneAchievement = {
+  title: 'Bug Killing Professional',
+  description: 'Purchased pesticides five times. Your crops are well defended!',
+};
+
+const pesticideInvestorAchievement = {
+  title: 'Long Term Investor',
+  description: 'Purchased pesticides fifteen times. You are investing heavily in crop protection!',
+};
+
+const fertilizerMilestoneAchievement = {
+  title: 'Getting Ready For Take Off!',
+  description: 'Purchased fertilizers three times. Your yields are multiplying exponentially!',
+};
+
+const fertilizerMasterAchievement = {
+  title: 'TO THE MOON!',
+  description: 'Purchased fertilizers ten times. Your crops are supercharged!',
+};
+
 watch(() => store.count, (count) => {
   if (count >= 10) {
     const achievement = endingAchievements[selectedPlant.value];
     if (achievement) {
       store.addAchievement(achievement);
     }
+  }
+  if (count >= 10000) {
+    const milestoneAchievement = cropMilestoneAchievements[selectedPlant.value];
+    if (milestoneAchievement) {
+      store.addAchievement(milestoneAchievement);
+    }
+  }
+});
+
+watch(() => store.pesticideLevel, (level) => {
+  if (level >= 5) {
+    store.addAchievement(pesticideMilestoneAchievement);
+  }
+    if (level >= 15) {
+    store.addAchievement(pesticideInvestorAchievement);
+  }
+});
+
+watch(() => store.fertilizerLevel, (level) => {
+  if (level >= 3) {
+    store.addAchievement(fertilizerMilestoneAchievement);
+  }
+  if (level >= 10) {
+    store.addAchievement(fertilizerMasterAchievement);
   }
 });
 

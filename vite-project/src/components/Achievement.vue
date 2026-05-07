@@ -2,14 +2,13 @@
 const props = defineProps<{
   title: string,
   description: string,
-  img: string
-
+  img?: string
 }>();
 </script>
 
 <template>
   <li class="achievement">
-    <img :src=props.img>
+    <img v-if="props.img" :src="props.img">
     <div class="achievmentDesc">
       <p>{{title}}</p>
       <p>{{description}}</p>
