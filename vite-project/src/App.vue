@@ -37,11 +37,46 @@ const changeSection = (section: string) => {
   currentSection.value = section;
 };
 
+let autoSaveInterval: ReturnType<typeof setInterval> | null = null;
+let handleBeforeUnload: (() => void) | null = null;
+
 onMounted(() => {
+  store.loadGame();
+  
+  const now = Date.now();
+  const lastSessionTime = store.lastSessionTime;
+  if (lastSessionTime > 0) {
+    const elapsedMs = now - lastSessionTime;
+    const offlineGains = store.calculateOfflineGains(elapsedMs);
+    if (offlineGains > 0) {
+      console.log(`Offline zisky: +${offlineGains}`);
+    }
+  }
+  
+  store.lastSessionTime = now;
+  store.saveGame();
+  
+  autoSaveInterval = setInterval(() => {
+    store.saveGame();
+  }, 10000);
+  
+  handleBeforeUnload = () => {
+    store.saveGame();
+  };
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('pagehide', handleBeforeUnload);
+  
   scheduleDayEvents()
   startPesticideTimer()
 })
+
 onUnmounted(() => {
+  if (autoSaveInterval) clearInterval(autoSaveInterval);
+  if (handleBeforeUnload) {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.removeEventListener('pagehide', handleBeforeUnload);
+  }
+  store.saveGame();
   cleanupEventLogic()
   stopPesticideTimer()
 })

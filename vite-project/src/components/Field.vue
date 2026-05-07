@@ -73,7 +73,8 @@ const removeCollectible = (id: number) => {
 
 const collectibleDrop = () => {
   const chance = Math.trunc(Math.random() * 100)
-  if (chance < 100) {
+  if (chance < 100) // mělo by být 5 místo 100
+  {
     const id = nextId++
     collectibles.value.push({ id, x: 10 + Math.random() * 70, y: 10 + Math.random() * 70, flashing: false })
     const flashTimer = setTimeout(() => {

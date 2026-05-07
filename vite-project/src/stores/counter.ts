@@ -18,6 +18,7 @@ export const useCounterStore = defineStore("counter", {
             pesticideExpiry: 0,
             bigCursorPerkOwned: false,
             perkDropActive: false,
+            lastSessionTime: 0,
         };
     },
     actions: {
@@ -72,6 +73,50 @@ export const useCounterStore = defineStore("counter", {
         collectCursorPerk() {
             this.bigCursorPerkOwned = true;
             this.perkDropActive = false;
+        },
+        saveGame() {
+            const gameData = {
+                count: this.count,
+                fertilizerLevel: this.fertilizerLevel,
+                pesticideLevel: this.pesticideLevel,
+                pesticideExpiry: this.pesticideExpiry,
+                bigCursorPerkOwned: this.bigCursorPerkOwned,
+                achievements: this.achievements,
+                lastSessionTime: Date.now(),
+            };
+            localStorage.setItem('wbi-klikacka-save', JSON.stringify(gameData));
+        },
+        loadGame() {
+            const savedData = localStorage.getItem('wbi-klikacka-save');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    this.count = data.count || 0;
+                    this.fertilizerLevel = data.fertilizerLevel || 0;
+                    this.pesticideLevel = data.pesticideLevel || 0;
+                    this.pesticideExpiry = data.pesticideExpiry || 0;
+                    this.bigCursorPerkOwned = data.bigCursorPerkOwned || false;
+                    this.achievements = data.achievements || [];
+                    this.lastSessionTime = data.lastSessionTime || 0;
+                } catch (e) {
+                    console.error('Chyba při načítání hry:', e);
+                }
+            }
+        },
+        calculateOfflineGains(elapsedMs: number) {
+            const FIELD_COUNT = 32;
+            const GROWTH_TIME_NORMAL = 10000; // ms
+
+            // Předpokládáme normální růst (bez deště) v offline čase
+            const growthsCompleted = Math.floor(elapsedMs / GROWTH_TIME_NORMAL);
+            const gainsPerField = 1 * Math.pow(3, this.fertilizerLevel);
+            const totalGains = FIELD_COUNT * growthsCompleted * gainsPerField;
+
+            if (totalGains > 0) {
+                this.count += totalGains;
+            }
+
+            return totalGains;
         },
     },
     getters: {
