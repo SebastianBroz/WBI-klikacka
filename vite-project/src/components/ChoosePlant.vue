@@ -25,9 +25,10 @@ const selectPlant = (plant: string) => {
 .shadow
 {
   width: 100vw; height: 100vh;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
   background-color: rgba(0, 0, 0, 0.8);
 }
 .choosePlantPopup {
@@ -42,6 +43,7 @@ const selectPlant = (plant: string) => {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  z-index: 1000;
 }
 .choosePlantPopup p:first-child {
   color: #f7f9f9;

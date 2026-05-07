@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { selectedPlant } from '../composables/usePlant'
+import { isRainActive } from '../composables/useEvents'
 import { useCounterStore } from "../stores/counter.ts"
 import SingleCollectible from './SingleCollectible.vue';
 
+interface Collectible { id: number; x: number; y: number; flashing: boolean }
+
 const store = useCounterStore();
 const progress = ref(0);
-const dropped = ref(false);
+const collectibles = ref<Collectible[]>([]);
+let nextId = 0;
+const collectibleTimers = new Map<number, ReturnType<typeof setTimeout>[]>();
 
 const growthStage = computed(() => {
   if (progress.value < 33) return 'sapling'
@@ -18,30 +23,48 @@ let gameInterval: ReturnType<typeof setInterval> | null = null;
 let progressInterval: ReturnType<typeof setInterval> | null = null;
 
 const startTimer = () => {
+  const duration = isRainActive.value ? 5000 : 10000
+  const progressStep = isRainActive.value ? 0.2 : 0.1
   if (gameInterval) clearInterval(gameInterval)
   gameInterval = setInterval(() => {
     store.increment(1)
     progress.value = 0
     startTimer()
-  }, 10000)
+  }, duration)
 
   progress.value = 0
   if (progressInterval) clearInterval(progressInterval)
   progressInterval = setInterval(() => {
-    progress.value += 0.1
+    progress.value += progressStep
   }, 10)
+}
+
+watch(isRainActive, () => startTimer())
+
+const removeCollectible = (id: number) => {
+  const idx = collectibles.value.findIndex(c => c.id === id)
+  if (idx !== -1) collectibles.value.splice(idx, 1)
+  const timers = collectibleTimers.get(id)
+  if (timers) { timers.forEach(clearTimeout); collectibleTimers.delete(id) }
 }
 
 const collectibleDrop = () => {
   const chance = Math.trunc(Math.random() * 100)
-  if (chance < 5) {
-    dropped.value = true;
+  if (chance < 100) {
+    const id = nextId++
+    collectibles.value.push({ id, x: 10 + Math.random() * 70, y: 10 + Math.random() * 70, flashing: false })
+    const flashTimer = setTimeout(() => {
+      const c = collectibles.value.find(c => c.id === id)
+      if (c) c.flashing = true
+    }, 10000)
+    const removeTimer = setTimeout(() => removeCollectible(id), 15000)
+    collectibleTimers.set(id, [flashTimer, removeTimer])
   }
 }
 
-const onCollect = () => {
+const onCollect = (id: number) => {
   store.increment(30)
-  dropped.value = false;
+  removeCollectible(id)
 }
 
 const handleClick = () => {
@@ -54,11 +77,19 @@ onMounted(() => startTimer())
 onUnmounted(() => {
   if (gameInterval) clearInterval(gameInterval)
   if (progressInterval) clearInterval(progressInterval)
+  collectibleTimers.forEach(timers => timers.forEach(clearTimeout))
 })
 </script>
 
 <template>
-  <SingleCollectible v-if="dropped" @collect="onCollect" />
+  <SingleCollectible
+    v-for="c in collectibles"
+    :key="c.id"
+    :x="c.x"
+    :y="c.y"
+    :flashing="c.flashing"
+    @collect="onCollect(c.id)"
+  />
   <div class="field" @click="handleClick()">
     <img v-if="selectedPlant === 'trees' && growthStage === 'sapling'" src="/pics/tree_sapling.png"  style="pointer-events: none;">
     <img v-if="selectedPlant === 'trees' && growthStage === 'middle'"  src="/pics/tree_middle.png"   style="pointer-events: none;">
