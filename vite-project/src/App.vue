@@ -326,8 +326,6 @@ main {
   transform: translateY(0);
 }
 .buffOrNerf{
-  background-image: url(/pics/golden_bg.png);
-  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -339,11 +337,15 @@ main {
   transition: border-color 0.3s;
 }
 .buffOrNerf--buff {
+  background-image: url(/pics/golden_bg.png);
+  background-size: cover;
   border-color: #4cff80;
   box-shadow: 0 0 10px rgba(76, 255, 128, 0.25);
 }
 .buffOrNerf--nerf {
+  background: linear-gradient(180deg, #5c2800 0%, #3a1500 100%);
   border-color: #ff5555;
+  color: #ffffff;
   box-shadow: 0 0 10px rgba(255, 85, 85, 0.25);
 }
 .temporary
