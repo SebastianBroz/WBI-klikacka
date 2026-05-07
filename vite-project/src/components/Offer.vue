@@ -186,11 +186,15 @@ img {
   animation: flashIn 0.7s ease-out both;
 }
 .flash-leave-active {
-  animation: flashIn 0.2s ease-in reverse both;
+  animation: flashOut 0.5s ease-in-out both;
 }
 @keyframes flashIn {
   0%   { opacity: 0; transform: scale(0.6); }
   30%  { opacity: 1; transform: scale(1.08); }
   100% { opacity: 1; transform: scale(1); }
+}
+@keyframes flashOut {
+  0%   { opacity: 1; transform: scale(1)    translateY(0); }
+  100% { opacity: 0; transform: scale(1.08) translateY(-0.75rem); }
 }
 </style>
