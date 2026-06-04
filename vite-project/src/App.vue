@@ -34,14 +34,18 @@ const currentSection = ref('shopOffers');
 const showResetConfirm = ref(false);
 
 const changeSection = (section: string) => {
+  if (currentSection.value === section) return;
   currentSection.value = section;
+  try { store.playWoodSound() } catch (e) {}
 };
 
 const resetGame = () => {
+  try { store.playButtonSound() } catch (e) {}
   showResetConfirm.value = true;
 };
 
 const confirmReset = () => {
+  try { store.playButtonSound() } catch (e) {}
   showResetConfirm.value = false;
   store.resetGame();
   resetPlantSelection();
@@ -52,6 +56,7 @@ const confirmReset = () => {
 };
 
 const cancelReset = () => {
+  try { store.playButtonSound() } catch (e) {}
   showResetConfirm.value = false;
 };
 

@@ -25,6 +25,35 @@ export const useCounterStore = defineStore("counter", {
         };
     },
     actions: {
+        playMoneySound() {
+            const audio = new Audio('/audio/money-sound.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {
+            });
+        },
+        playButtonSound() {
+            const audio = new Audio('/audio/button-sound.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {
+            });
+        },
+        playWoodSound() {
+            const audio = new Audio('/audio/wood-sound.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {
+            });
+        },
+        playLeavesSound() {
+            const audio = new Audio('/audio/leaves-sound.mp3');
+            audio.volume = 0.5;
+            audio.play().then(() => {
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, 500);
+            }).catch(() => {
+            });
+        },
         increment(val = 0) {
             const level = Number(this.fertilizerLevel) || 0;
             const amount = val * Math.pow(3, level);
@@ -59,6 +88,7 @@ export const useCounterStore = defineStore("counter", {
             if (this.count >= cost) {
                 this.count -= cost;
                 this.fertilizerLevel = level + 1;
+                this.playMoneySound();
             }
         },
         buyPesticide() {
@@ -68,6 +98,7 @@ export const useCounterStore = defineStore("counter", {
                 this.count -= cost;
                 this.pesticideExpiry = Date.now() + 5 * 3600 * 1000;
                 this.pesticideLevel = level + 1;
+                this.playMoneySound();
             }
         },
         dropCursorPerk() {

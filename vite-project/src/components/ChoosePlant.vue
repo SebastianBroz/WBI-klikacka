@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { savePlantSelection } from '../composables/usePlant'
+import { useCounterStore } from '../stores/counter.ts'
+
+const store = useCounterStore();
 
 const selectPlant = (plant: string) => {
   savePlantSelection(plant)
+  try { store.playLeavesSound() } catch (e) {}
 }
 </script>
 

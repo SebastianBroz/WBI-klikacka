@@ -91,6 +91,7 @@ const onCollect = (id: number) => {
   store.increment(30)
   spawnFloat(gain)
   removeCollectible(id)
+  try { store.playLeavesSound() } catch (e) {}
 }
 
 const removePerkDrop = () => {
@@ -133,6 +134,7 @@ const handleClick = () => {
   if (store.bigCursorPerkOwned && fieldEl.value) {
     triggerBigClick(fieldEl.value)
   }
+  try { store.playLeavesSound() } catch (e) {}
 }
 
 watch(bigClickSignal, (signal) => {
