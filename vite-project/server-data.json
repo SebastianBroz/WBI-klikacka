@@ -1,0 +1,53 @@
+{
+  "leaderboard": [
+    {
+      "name": "Sebastian",
+      "score": 3615458,
+      "prestige": 15,
+      "updatedAt": "2026-06-04T23:10:42.196Z"
+    }
+  ],
+  "saves": {
+    "Sebastian": {
+      "name": "Sebastian",
+      "score": 3615458,
+      "prestigeLevel": 15,
+      "saveData": {
+        "count": 3615458,
+        "fertilizerLevel": 3,
+        "pesticideLevel": 0,
+        "pesticideExpiry": 0,
+        "bigCursorPerkOwned": true,
+        "achievements": [
+          {
+            "title": "Arboreal Giant",
+            "description": "Harvested 10,000 trees. The forest is flourishing!",
+            "img": "/pics/achievement_trees_10000.png"
+          },
+          {
+            "title": "Getting Ready For Take Off!",
+            "description": "Purchased fertilizers three times. Your yields are multiplying exponentially!",
+            "img": "/pics/achievement_fertilizer_3.png"
+          },
+          {
+            "title": "Forest Ending",
+            "description": "You filled the planet with trees and saved humanity from extinction!",
+            "img": "/pics/achievement_forest_ending.png"
+          }
+        ],
+        "lastSessionTime": 1780614585508,
+        "endingDismissed": false,
+        "savedActiveEvent": null,
+        "savedEventExpiry": 0,
+        "musicVolume": 0.2,
+        "effectsVolume": 1,
+        "musicMuted": false,
+        "effectsMuted": false,
+        "animationsDisabled": false,
+        "prestigeLevel": 15
+      },
+      "plantData": "trees",
+      "updatedAt": "2026-06-04T23:10:42.196Z"
+    }
+  }
+}

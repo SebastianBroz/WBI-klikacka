@@ -218,6 +218,24 @@ export const useCounterStore = defineStore("counter", {
                 }
             }
         },
+        loadGameData(data: any) {
+            this.count = data.count || 0;
+            this.fertilizerLevel = data.fertilizerLevel || 0;
+            this.pesticideLevel = data.pesticideLevel || 0;
+            this.pesticideExpiry = data.pesticideExpiry || 0;
+            this.bigCursorPerkOwned = data.bigCursorPerkOwned || false;
+            this.achievements = data.achievements || [];
+            this.lastSessionTime = data.lastSessionTime || 0;
+            this.endingDismissed = data.endingDismissed || false;
+            this.savedActiveEvent = data.savedActiveEvent || null;
+            this.savedEventExpiry = data.savedEventExpiry || 0;
+            this.musicVolume = data.musicVolume ?? 0.2;
+            this.effectsVolume = data.effectsVolume ?? 0.5;
+            this.musicMuted = data.musicMuted ?? false;
+            this.effectsMuted = data.effectsMuted ?? false;
+            this.animationsDisabled = data.animationsDisabled ?? false;
+            this.prestigeLevel = Number(data.prestigeLevel ?? 0);
+        },
         calculateOfflineGains(elapsedMs: number) {
             const FIELD_COUNT = 32;
             const GROWTH_TIME_NORMAL = 10000; // ms

@@ -189,8 +189,7 @@ onUnmounted(() => {
               <Field v-for="n in 32" :key="n" />
             </div>
             <div class="settings">
-              <Settings />
-              <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
+              <Settings @resetRequested="resetGame" />
             </div>
           </section>
           
