@@ -14,7 +14,7 @@ import Perk from './components/Perk.vue';
 import Achievement from './components/Achievement.vue'
 import Ending from './components/Ending.vue';
 import { useCounterStore } from "./stores/counter.ts"
-import Audio from "./components/Audio.vue"
+import Settings from "./components/Settings.vue"
 import CustomCursor from "./components/CustomCursor.vue"
 import { selectedPlant, isChoosingPlant, resetPlantSelection } from './composables/usePlant'
 import { activeEvent, eventTimeRemaining } from './composables/useEvents'
@@ -165,7 +165,7 @@ onUnmounted(() => {
               <Field v-for="n in 32" :key="n" />
             </div>
             <div class="settings">
-              <Audio />
+              <Settings />
               <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
             </div>
           </section>

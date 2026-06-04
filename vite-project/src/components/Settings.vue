@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { useCounterStore } from '../stores/counter.ts';
+import { selectedPlant } from '../composables/usePlant.ts';
 
 const store = useCounterStore();
 const audioRef = ref<HTMLAudioElement | null>(null);
+const saveInputRef = ref<HTMLInputElement | null>(null);
 
 const updateAudioVolume = () => {
   if (!audioRef.value) return;
@@ -62,6 +64,62 @@ const animationsDisabled = computed<boolean>({
     store.animationsDisabled = value;
   },
 });
+
+const downloadSaveFile = () => {
+  const saveData = localStorage.getItem('wbi-klikacka-save');
+  const plantData = localStorage.getItem('wbi-klikacka-plant');
+  const payload = {
+    save: saveData,
+    plant: plantData,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'wbi-klikacka-save.json';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+const promptLoadSaveFile = () => {
+  saveInputRef.value?.click();
+};
+
+const loadSaveFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    let saveString = '';
+    let plantString = '';
+
+    if (parsed && typeof parsed === 'object' && 'save' in parsed) {
+      saveString = parsed.save ?? '';
+      plantString = parsed.plant ?? '';
+    } else {
+      saveString = text;
+    }
+
+    if (saveString) {
+      localStorage.setItem('wbi-klikacka-save', saveString);
+      store.loadGame();
+    }
+
+    if (plantString) {
+      localStorage.setItem('wbi-klikacka-plant', plantString);
+      selectedPlant.value = plantString;
+    }
+  } catch (error) {
+    console.error('Failed to load save file:', error);
+  } finally {
+    if (input) input.value = '';
+  }
+};
 </script>
 
 <template>
@@ -94,6 +152,11 @@ const animationsDisabled = computed<boolean>({
             <input type="checkbox" v-model="animationsDisabled" />
           </div>
         </div>
+        <div class="saveControls">
+          <button type="button" @click="downloadSaveFile">Export save</button>
+          <button type="button" @click="promptLoadSaveFile">Import save</button>
+          <input ref="saveInputRef" type="file" accept="application/json,.json" @change="loadSaveFile" style="display: none;" />
+        </div>
       </div>
     </div>
   </div>
@@ -120,8 +183,8 @@ img {
 }
 .audioDropdown{
   position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
+  left: calc(100%);
+  top: 0;
   width: 22rem;
   background: rgba(8, 12, 22, 0.96);
   border: 1px solid rgba(255,255,255,0.14);
@@ -130,14 +193,31 @@ img {
   padding: 1rem;
   z-index: 20;
 }
-.audioSetting, .disableAnimations{
+.audioSetting, .disableAnimations, .saveControls {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
 }
-.audioSetting:last-child{
+.audioSetting:last-child,
+.saveControls:last-child {
   margin-bottom: 0;
+}
+.saveControls {
+  flex-direction: column;
+}
+.saveControls button {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #f7f9f9;
+  cursor: pointer;
+  border-radius: 0.75rem;
+  font-weight: 700;
+}
+.saveControls button:hover {
+  background: rgba(255,255,255,0.14);
 }
 .audioSetting img{
   height: 2rem;
@@ -163,6 +243,12 @@ img {
 @media (max-width: 500px) {
 .audioDropdown{
   width: 16rem;
+}
+}
+@media (max-width: 800px) {
+.audioDropdown{
+  top: calc(100% + 0.5rem);
+  left: 0;
 }
 }
 </style>
