@@ -20,32 +20,60 @@ export const useCounterStore = defineStore("counter", {
             perkDropActive: false,
             lastSessionTime: 0,
             endingDismissed: false,
+            musicVolume: 0.2,
+            effectsVolume: 0.5,
+            musicMuted: false,
+            effectsMuted: false,
+            animationsDisabled: false,
             savedActiveEvent: null as 'rain' | 'insect_attack' | null,
             savedEventExpiry: 0,
         };
     },
     actions: {
+        setMusicVolume(value: number) {
+            const normalized = Math.max(0, Math.min(1, value));
+            this.musicVolume = normalized;
+            this.musicMuted = normalized === 0;
+        },
+        setEffectsVolume(value: number) {
+            const normalized = Math.max(0, Math.min(1, value));
+            this.effectsVolume = normalized;
+            this.effectsMuted = normalized === 0;
+        },
+        toggleMusicMuted() {
+            this.musicMuted = !this.musicMuted;
+        },
+        toggleEffectsMuted() {
+            this.effectsMuted = !this.effectsMuted;
+        },
+        toggleAnimationsDisabled() {
+            this.animationsDisabled = !this.animationsDisabled;
+        },
         playMoneySound() {
+            if (this.effectsMuted) return;
             const audio = new Audio('/audio/money-sound.mp3');
-            audio.volume = 0.5;
+            audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playButtonSound() {
+            if (this.effectsMuted) return;
             const audio = new Audio('/audio/button-sound.mp3');
-            audio.volume = 0.5;
+            audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playWoodSound() {
+            if (this.effectsMuted) return;
             const audio = new Audio('/audio/wood-sound.mp3');
-            audio.volume = 0.5;
+            audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playLeavesSound() {
+            if (this.effectsMuted) return;
             const audio = new Audio('/audio/leaves-sound.mp3');
-            audio.volume = 0.5;
+            audio.volume = this.effectsVolume;
             audio.play().then(() => {
                 setTimeout(() => {
                     audio.pause();
@@ -120,6 +148,11 @@ export const useCounterStore = defineStore("counter", {
                 endingDismissed: this.endingDismissed,
                 savedActiveEvent: this.savedActiveEvent,
                 savedEventExpiry: this.savedEventExpiry,
+                musicVolume: this.musicVolume,
+                effectsVolume: this.effectsVolume,
+                musicMuted: this.musicMuted,
+                effectsMuted: this.effectsMuted,
+                animationsDisabled: this.animationsDisabled,
             };
             localStorage.setItem('wbi-klikacka-save', JSON.stringify(gameData));
         },
@@ -138,6 +171,11 @@ export const useCounterStore = defineStore("counter", {
                     this.endingDismissed = data.endingDismissed || false;
                     this.savedActiveEvent = data.savedActiveEvent || null;
                     this.savedEventExpiry = data.savedEventExpiry || 0;
+                    this.musicVolume = data.musicVolume ?? 0.2;
+                    this.effectsVolume = data.effectsVolume ?? 0.5;
+                    this.musicMuted = data.musicMuted ?? false;
+                    this.effectsMuted = data.effectsMuted ?? false;
+                    this.animationsDisabled = data.animationsDisabled ?? false;
                 } catch (e) {
                     console.error('Chyba při načítání hry:', e);
                 }
@@ -173,6 +211,11 @@ export const useCounterStore = defineStore("counter", {
             this.endingDismissed = false;
             this.savedActiveEvent = null;
             this.savedEventExpiry = 0;
+            this.musicVolume = 0.2;
+            this.effectsVolume = 0.5;
+            this.musicMuted = false;
+            this.effectsMuted = false;
+            this.animationsDisabled = false;
 
             // Vymaž všechny uložené údaje
             localStorage.removeItem('wbi-klikacka-save');

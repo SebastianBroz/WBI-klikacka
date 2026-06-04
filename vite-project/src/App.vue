@@ -118,7 +118,7 @@ onUnmounted(() => {
       </div>
     </div>
   </TransitionGroup>
-  <div class="container">
+  <div class="container" :class="{ 'no-animations': store.animationsDisabled }">
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
       <Transition name="ending-popup">
@@ -169,6 +169,7 @@ onUnmounted(() => {
               <button class="resetBtn" @click="resetGame">&#9888; RESET GAME</button>
             </div>
           </section>
+          
           <section class="optionsAndLogo">
             <section class="options">
               <div class="optionsMenu">
@@ -213,8 +214,11 @@ onUnmounted(() => {
             </section>
             <img src="/pics/logo_pixel.png" alt="logo" style="pointer-events: none"/>
           </section>
+
         </main>
+
   </div>
+
 
   <Transition name="reset-modal">
     <div v-if="showResetConfirm" class="reset-overlay" @click.self="cancelReset">
@@ -448,6 +452,8 @@ main {
 }
 .settings{
   display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 .options {
   display: flex;
@@ -499,9 +505,6 @@ main {
   color: #f7f9f9;
   border: none;
   cursor: pointer;
-}
-.optionsMenu button:hover {
-  /*background-color: #942301;*/
 }
 /*.optionsMenu button:active {
   background-color: #942301;
@@ -708,9 +711,6 @@ main {
     padding-inline: 1rem;
     gap: 1rem;
   }
-  .buffOrNerf{
-
-  }
   .buffOrNerf img{
     height: 3rem;
   }
@@ -841,5 +841,15 @@ main {
 .ending-popup-leave-from {
   opacity: 1;
   transform: scale(1);
+}
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  transition: none !important;
+  animation: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
 }
 </style>
