@@ -25,6 +25,7 @@ export const useCounterStore = defineStore("counter", {
             musicMuted: false,
             effectsMuted: false,
             animationsDisabled: false,
+            prestigeLevel: 0,
             savedActiveEvent: null as 'rain' | 'insect_attack' | null,
             savedEventExpiry: 0,
         };
@@ -48,6 +49,38 @@ export const useCounterStore = defineStore("counter", {
         },
         toggleAnimationsDisabled() {
             this.animationsDisabled = !this.animationsDisabled;
+        },
+        awardPrestige() {
+            this.prestigeLevel = Number(this.prestigeLevel || 0) + 1;
+        },
+        prestigeReset() {
+            const preserved = {
+                musicVolume: this.musicVolume,
+                effectsVolume: this.effectsVolume,
+                musicMuted: this.musicMuted,
+                effectsMuted: this.effectsMuted,
+                animationsDisabled: this.animationsDisabled,
+            };
+
+            this.count = 0;
+            this.achievements = [];
+            this.newAchievements = [];
+            this.recentGains = [];
+            this.fertilizerLevel = 0;
+            this.pesticideLevel = 0;
+            this.pesticideExpiry = 0;
+            this.bigCursorPerkOwned = false;
+            this.perkDropActive = false;
+            this.lastSessionTime = 0;
+            this.endingDismissed = false;
+            this.savedActiveEvent = null;
+            this.savedEventExpiry = 0;
+
+            this.musicVolume = preserved.musicVolume;
+            this.effectsVolume = preserved.effectsVolume;
+            this.musicMuted = preserved.musicMuted;
+            this.effectsMuted = preserved.effectsMuted;
+            this.animationsDisabled = preserved.animationsDisabled;
         },
         playMoneySound() {
             if (this.effectsMuted) return;
@@ -84,11 +117,13 @@ export const useCounterStore = defineStore("counter", {
         },
         increment(val = 0) {
             const level = Number(this.fertilizerLevel) || 0;
+            const prestige = Number(this.prestigeLevel) || 0;
             const amount = val * Math.pow(3, level);
-            this.count += amount;
+            const total = amount * (1 + prestige);
+            this.count += total;
             if (amount > 0) {
                 const now = Date.now();
-                this.recentGains.push({ time: now, amount });
+                this.recentGains.push({ time: now, amount: total });
                 this.recentGains = this.recentGains.filter(g => now - g.time < 30000);
             }
         },
@@ -153,6 +188,7 @@ export const useCounterStore = defineStore("counter", {
                 musicMuted: this.musicMuted,
                 effectsMuted: this.effectsMuted,
                 animationsDisabled: this.animationsDisabled,
+                prestigeLevel: this.prestigeLevel,
             };
             localStorage.setItem('wbi-klikacka-save', JSON.stringify(gameData));
         },
@@ -176,6 +212,7 @@ export const useCounterStore = defineStore("counter", {
                     this.musicMuted = data.musicMuted ?? false;
                     this.effectsMuted = data.effectsMuted ?? false;
                     this.animationsDisabled = data.animationsDisabled ?? false;
+                    this.prestigeLevel = Number(data.prestigeLevel ?? 0);
                 } catch (e) {
                     console.error('Chyba při načítání hry:', e);
                 }
@@ -188,7 +225,7 @@ export const useCounterStore = defineStore("counter", {
             // Předpokládáme normální růst (bez deště) v offline čase
             const growthsCompleted = Math.floor(elapsedMs / GROWTH_TIME_NORMAL);
             const gainsPerField = 1 * Math.pow(3, this.fertilizerLevel);
-            const totalGains = FIELD_COUNT * growthsCompleted * gainsPerField;
+            const totalGains = FIELD_COUNT * growthsCompleted * gainsPerField * (1 + this.prestigeLevel);
 
             if (totalGains > 0) {
                 this.count += totalGains;
@@ -236,5 +273,6 @@ export const useCounterStore = defineStore("counter", {
             const level = Number(state.pesticideLevel) || 0;
             return Math.floor(300 * Math.pow(3, level));
         },
+        prestigeMultiplier: (state) => 1 + (Number(state.prestigeLevel) || 0),
     }
 });

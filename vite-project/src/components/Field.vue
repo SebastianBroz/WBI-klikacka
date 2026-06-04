@@ -48,7 +48,10 @@ const startTimer = () => {
   const progressStep = isRainActive.value ? 0.2 : 0.1
   if (gameInterval) clearInterval(gameInterval)
   gameInterval = setInterval(() => {
-    const gain = 1 * store.fertilizerMultiplier
+
+    const fertilizerMult = Number(store.fertilizerMultiplier) || 1
+    const prestigeMult = Number(store.prestigeMultiplier) || 1
+    const gain = 1 * fertilizerMult * prestigeMult
     store.increment(1)
     spawnFloat(gain)
     progress.value = 0
@@ -87,7 +90,9 @@ const collectibleDrop = () => {
 }
 
 const onCollect = (id: number) => {
-  const gain = 30 * store.fertilizerMultiplier
+  const fertilizerMult = Number(store.fertilizerMultiplier) || 1
+  const prestigeMult = Number(store.prestigeMultiplier) || 1
+  const gain = 30 * fertilizerMult * prestigeMult
   store.increment(30)
   spawnFloat(gain)
   removeCollectible(id)
@@ -120,8 +125,10 @@ const onCollectPerk = () => {
 }
 
 const doFieldTick = () => {
+  const fertilizerMult = Number(store.fertilizerMultiplier) || 1
+  const prestigeMult = Number(store.prestigeMultiplier) || 1
   store.increment(1)
-  spawnFloat(1 * store.fertilizerMultiplier)
+  spawnFloat(1 * fertilizerMult * prestigeMult)
   startTimer()
   collectibleDrop()
   tryPerkDrop()

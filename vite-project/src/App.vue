@@ -6,7 +6,7 @@ https://claude.ai/share/fd8cab84-7071-4043-ae01-7f617112934a
 -->
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import ChoosePlant from './components/ChoosePlant.vue';
 import Field from './components/Field.vue';
 import Offer from './components/Offer.vue';
@@ -32,11 +32,25 @@ const { shopItems } = useShop(store);
 
 const currentSection = ref('shopOffers');
 const showResetConfirm = ref(false);
+const ENDING_TARGET = 1000000000;
+const endingProgressPercent = computed(() => Math.min(100, Math.max(0, Math.round((Number(store.count) / ENDING_TARGET) * 100))));
+const endingProgressLabel = computed(() => `${Math.min(Math.floor(Number(store.count) || 0), ENDING_TARGET).toLocaleString()} / ${ENDING_TARGET.toLocaleString()}`);
 
 const changeSection = (section: string) => {
   if (currentSection.value === section) return;
   currentSection.value = section;
   try { store.playWoodSound() } catch (e) {}
+};
+
+const handleEndingClose = () => {
+  store.awardPrestige();
+  store.endingDismissed = true;
+  store.prestigeReset();
+  resetPlantSelection();
+  cleanupEventLogic();
+  activeEvent.value = null;
+  eventTimeRemaining.value = 0;
+  scheduleDayEvents();
 };
 
 const resetGame = () => {
@@ -108,6 +122,7 @@ onUnmounted(() => {
 
 <template>
   <CustomCursor />
+  <div class="prestigeBadge">Prestige: {{ store.prestigeMultiplier }}×</div>
   <TransitionGroup name="achievement-popup" tag="div" class="achievement-popups">
     <div v-for="achievement in store.newAchievements" :key="achievement.title" class="achievement-popup">
       <img :src="achievement.img" alt="achievement icon" />
@@ -122,7 +137,7 @@ onUnmounted(() => {
     <main>
       <ChoosePlant v-if="isChoosingPlant"/>
       <Transition name="ending-popup">
-        <Ending v-if="store.count >= 1000000000 && !store.endingDismissed" @close="store.endingDismissed = true"/>
+        <Ending v-if="store.count >= ENDING_TARGET && !store.endingDismissed" @close="handleEndingClose"/>
       </Transition>
           <section class="stats">
             <Transition name="event-banner">
@@ -154,6 +169,15 @@ onUnmounted(() => {
               <img src="/pics/mushroom_grown.png" v-if="selectedPlant === 'mushrooms'" style="pointer-events: none;">
               <img src="/pics/potato_grown.png" v-if="selectedPlant === 'potatoes'" style="pointer-events: none;">
               <p>{{store.count}}</p>
+            </div>
+            <div class="endingProgress">
+              <div class="endingProgressHeader">
+                <span>Goal progress</span>
+                <span>{{ endingProgressLabel }} ({{ endingProgressPercent }}%)</span>
+              </div>
+              <div class="endingProgressTrack">
+                <div class="endingProgressFill" :style="{ width: endingProgressPercent + '%' }"></div>
+              </div>
             </div>
             <div
               id="fields-area"
@@ -303,6 +327,35 @@ main {
   gap: 1rem;
   width: 100%;
   min-height: 0;
+}
+.endingProgress {
+  width: min(28rem, 100%);
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.endingProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.55rem;
+  color: #111;
+}
+.endingProgressTrack {
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+.endingProgressFill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #7cff83, #22a33a);
+  transition: width 0.25s ease;
 }
 .event-banner-enter-active {
   animation: eventSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -790,6 +843,30 @@ main {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   max-width: 20rem;
   border: 2px solid #a76d60;
+}
+.prestigeBadge {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  color: #7cff6a;
+  background: rgba(0, 0, 0, 0.62);
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(124, 255, 106, 0.3);
+}
+.prestigeBadge {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1002;
+  color: #7cff6a;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.6rem 1rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(124, 255, 106, 0.25);
 }
 .achievement-popup img {
   width: 3rem;
