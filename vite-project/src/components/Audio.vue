@@ -11,16 +11,40 @@ const toggleAudio = () => {
   }
 };
 
+const playAudio = () => {
+  if (audioRef.value && !audioRef.value.muted) {
+    audioRef.value.play().catch(() => {
+      // Pokud se autoplay nezdaří, zkusíme přehrávat po uživatelské interakci
+      console.log("Autoplay blocked, waiting for user interaction");
+    });
+  }
+};
+
 onMounted(() => {
   audioRef.value = document.getElementById("myAudio") as HTMLAudioElement;
   if (audioRef.value) {
     audioRef.value.volume = 0.2;
+    audioRef.value.muted = false;
+    isMuted.value = false;
+    
+    // Pokus spustit hudbu ihned
+    playAudio();
+    
+    // Přidej listener pro první uživatelskou interakci
+    const enableAudioOnInteraction = () => {
+      playAudio();
+      document.removeEventListener('click', enableAudioOnInteraction);
+      document.removeEventListener('touchstart', enableAudioOnInteraction);
+    };
+    
+    document.addEventListener('click', enableAudioOnInteraction);
+    document.addEventListener('touchstart', enableAudioOnInteraction);
   }
 });
 </script>
 
 <template>
-  <audio id="myAudio" loop autoplay>
+  <audio id="myAudio" loop>
     <source src="/audio/bg-music.mp3" type="audio/mpeg">
   </audio>
   <img 
