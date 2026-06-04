@@ -182,9 +182,9 @@ onUnmounted(() => {
             <div
               id="fields-area"
               class="fields"
-              :style="selectedPlant === 'trees'     ? 'background-image: url(/pics/grass_floor.png)'  :
-                      selectedPlant === 'mushrooms' ? 'background-image: url(/pics/forest_floor.png)' :
-                                                      'background-image: url(/pics/soil_floor.png)'"
+              :style="selectedPlant === 'trees'     ? 'background-image: url(./pics/grass_floor.png)'  :
+                      selectedPlant === 'mushrooms' ? 'background-image: url(./pics/forest_floor.png)' :
+                                                      'background-image: url(./pics/soil_floor.png)'"
             >
               <Field v-for="n in 32" :key="n" />
             </div>
@@ -305,7 +305,7 @@ template {
   max-width: 100%;
   min-height: 100vh;
   background-color: #e0d0c1;
-  background-image: url(/pics/sky_bg.png);
+  background-image: url(./pics/sky_bg.png);
   background-size: cover;
   padding-top: 2.5rem;
 }
@@ -398,7 +398,7 @@ main {
   transition: border-color 0.3s;
 }
 .buffOrNerf--buff {
-  background-image: url(/pics/golden_bg.png);
+  background-image: url(./pics/golden_bg.png);
   background-size: cover;
   border-color: #4cff80;
   box-shadow: 0 0 10px rgba(76, 255, 128, 0.25);
@@ -552,7 +552,7 @@ main {
   font-size: 1.2em;
   /*background-color: #601700;*/
   background: none;
-  background-image: url(/pics/wooden_board.png);
+  background-image: url(./pics/wooden_board.png);
   background-size: cover;
   color: #f7f9f9;
   border: none;
@@ -929,3 +929,5 @@ main {
   transition-delay: 0s !important;
 }
 </style>
+
+

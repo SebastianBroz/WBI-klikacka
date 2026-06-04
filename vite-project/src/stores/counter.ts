@@ -84,28 +84,28 @@ export const useCounterStore = defineStore("counter", {
         },
         playMoneySound() {
             if (this.effectsMuted) return;
-            const audio = new Audio('/audio/money-sound.mp3');
+            const audio = new Audio(import.meta.env.BASE_URL + 'audio/money-sound.mp3');
             audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playButtonSound() {
             if (this.effectsMuted) return;
-            const audio = new Audio('/audio/button-sound.mp3');
+            const audio = new Audio(import.meta.env.BASE_URL + 'audio/button-sound.mp3');
             audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playWoodSound() {
             if (this.effectsMuted) return;
-            const audio = new Audio('/audio/wood-sound.mp3');
+            const audio = new Audio(import.meta.env.BASE_URL + 'audio/wood-sound.mp3');
             audio.volume = this.effectsVolume;
             audio.play().catch(() => {
             });
         },
         playLeavesSound() {
             if (this.effectsMuted) return;
-            const audio = new Audio('/audio/leaves-sound.mp3');
+            const audio = new Audio(import.meta.env.BASE_URL + 'audio/leaves-sound.mp3');
             audio.volume = this.effectsVolume;
             audio.play().then(() => {
                 setTimeout(() => {
@@ -294,3 +294,5 @@ export const useCounterStore = defineStore("counter", {
         prestigeMultiplier: (state) => 1 + (Number(state.prestigeLevel) || 0),
     }
 });
+
+

@@ -96,3 +96,4 @@ export function setupAchievementWatchers(store: ReturnType<typeof useCounterStor
         }
     });
 }
+

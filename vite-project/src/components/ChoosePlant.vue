@@ -71,3 +71,5 @@ const selectPlant = (plant: string) => {
   gap: 1rem;
 }
 </style>
+
+

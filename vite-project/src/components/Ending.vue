@@ -87,3 +87,5 @@ const emit = defineEmits<{ close: [] }>();
   background-color: #a76d60;
 }
 </style>
+
+

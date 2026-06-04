@@ -9,6 +9,7 @@ const saveInputRef = ref<HTMLInputElement | null>(null);
 const showAudioDropdown = ref(false);
 const emit = defineEmits(['resetRequested']);
 const playerName = ref(localStorage.getItem('wbi-klikacka-player-name') || '');
+const assetBase = import.meta.env.BASE_URL || '/';
 const leaderboard = ref<Array<{ name: string; score: number; prestige: number; updatedAt: string }>>([]);
 const serverStatus = ref('');
 const serverLoading = ref(false);
@@ -242,7 +243,7 @@ const loadSaveFile = async (event: Event) => {
 
 <template>
   <audio id="myAudio" loop>
-    <source src="/audio/bg-music.mp3" type="audio/mpeg">
+    <source :src="assetBase + 'audio/bg-music.mp3'" type="audio/mpeg">
   </audio>
   <div class="settings">
     <div class="audioMenu">
@@ -459,3 +460,4 @@ img {
 }
 }
 </style>
+
